@@ -1,0 +1,2 @@
+yum-utils:
+  pkg.installed

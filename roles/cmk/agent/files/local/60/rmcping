@@ -1,0 +1,29 @@
+#!/bin/bash
+# ping ipmi ip
+OK=0
+WARN=1
+CRIT=2
+UNKNOWN=3
+
+if ! lsmod | grep ipmi_si -q;then
+    ret_txt="$WARN ipmi.ip WARN - kernel module lost: ipmi_si"
+elif ! which ipmitool > /dev/null;then
+    ret_txt="$WARN ipmi.ip WARN - command lost: ipmitool"
+elif ! type rmcpping > /dev/null;then
+    ret_txt="$WARN ipmi.ip WARN - command lost: rmcpping"
+elif [ ! -e /dev/ipmi0 ];then
+    exit 0
+else
+    IPMI_IP=$(ipmitool lan print |egrep '^IP Address *:' | cut -d ':' -f2 |  sed -n 's/\s*//gp')
+    if [ -z $IPMI_IP ];then
+       ret_txt="$UNKNOWN ipmi.ip WARN - IP lost"
+    fi
+    COUNT=3
+    if rmcpping -c $COUNT $IPMI_IP > /dev/null;then
+        ret_txt="$OK ipmi.ip OK - IP Address is: $IPMI_IP"
+    else
+        ret_txt="$UNKNOWN ipmi.ip UNKNOWN - IP Unreacheable: $IPMI_IP"
+    fi
+fi
+
+echo $ret_txt
