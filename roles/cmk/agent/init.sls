@@ -3,6 +3,12 @@ include:
   - RedHat
 {% endif %}
 
+iptables:
+  service:
+    - name: iptables
+    - dead
+    - enable: False
+
 xinetd:
   pkg:
     - installed
