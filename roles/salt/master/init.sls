@@ -7,7 +7,7 @@ salt-master:
   file:
     - managed
     - name: /etc/salt/master
-    - source: salt://salt/master.conf
+    - source: salt://salt/files/master.conf
     - template: jinja
     - require:
       - pkg: salt-master
@@ -21,7 +21,8 @@ salt-master:
       - file: /etc/salt/master
 
 salt-roster:
-  file.managed:
+  file:
+    - managed
     - name: /etc/salt/roster
     - source: salt://salt/roster.conf.jinja
     - template: jinja
@@ -29,7 +30,7 @@ salt-roster:
       - pkg: salt-master
 
 ssh_conf:
-  file.managed:
+  file:
+    - managed
     - name: /etc/ssh/ssh_config
-    - source: salt://salt/master/ssh_config.jinja
-
+    - source: salt://ssh/client/ssh_config.jinja

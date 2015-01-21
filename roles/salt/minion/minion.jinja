@@ -8,7 +8,7 @@ default_include: minion.d/*.conf
 
 # Set the location of the salt master server, if the master server cannot be
 # resolved, then the minion will fail to start.
-master: salt
+#master: salt
 
 # Set whether the minion should connect to the master via IPv6
 ipv6: False
@@ -91,7 +91,7 @@ ipv6: False
 #     - source: salt://ssh/sshd_config
 #     - backup: minion
 #
-backup_mode: minion
+#backup_mode: minion
 
 # When waiting for a master to accept the minion's public key, salt will
 # continuously attempt to reconnect until successful. This is the time, in
