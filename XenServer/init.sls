@@ -1,18 +1,10 @@
-include:
-  - RedHat
-
-python26-deps:
-  pkg.installed:
-    - name:
-      - python-setuptools
-
 disabl_citrix_repo:
   cmd.run:
     - name: sed -i '/enabled=1/s/1/0/' /etc/yum.repos.d/Citrix.repo
     - onlyif: test -f /etc/yum.repos.d/Citrix.repo
     - stateful: True
 
-{% if not grains['osrelease'].startswith('6.2') %}
+{% if grains['osrelease'].startswith('6.0.2') %}
 add_license:
   file:
     - managed
