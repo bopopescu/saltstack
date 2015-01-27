@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# check XenServer patches status
+import pprint
+import XenAPI
+import sys
+
+sess = XenAPI.xapi_local()
+try:
+    sess.login_with_password('', '')
+    xenapi = sess.xenapi
+    this_record = xenapi.session.get_this_host(sess._session)
+    this_host = xenapi.host.get_record(this_record)
+
+    ref = sess.xenapi.pool.get_all()[0]
+    pool = sess.xenapi.pool.get_record(ref)
+    pool_master = sess.xenapi.host.get_record(pool['master'])
+    if this_host['name_label'] == pool_master['name_label']:
+        this_host['role'] = 'master'
+    else:
+        this_host['role'] = 'slave'
+
+    print "<<<XenAPI_host_software_version>>>"
+    for key, val in this_host['software_version'].items():
+        print "%-30s: %s" % (key, val)
+
+except Exception, e:
+    sys.exit('error: %s' % str(e))

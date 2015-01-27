@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+import pprint
+import sys, os
+
+def read_metrics(ref_vm):
+    vgm = xenapi.VM.get_guest_metrics(ref_vm)
+    try:
+        metrics = xenapi.VM_guest_metrics.get_record(vgm)
+        return metrics
+    except:
+        return None
+
+if not os.path.exists('/etc/xensource-inventory'):
+    sys.exit()
+else:
+    import XenAPI
+
+sess = XenAPI.xapi_local()
+try:
+    sess.login_with_password('', '')
+    xenapi = sess.xenapi
+
+    this_record = xenapi.session.get_this_host(sess._session)
+    this_host = xenapi.host.get_record(this_record)
+    refs = this_host['resident_VMs']
+
+    print '<<<XenAPI_host_resient_VMs>>>'
+    for ref in refs:
+        VM = xenapi.VM.get_record(ref)
+        ref_VM_metrics = xenapi.VM.get_metrics(ref)
+        VM_metrics = xenapi.VM_metrics.get_record(ref_VM_metrics)
+        VCPUs_number = VM_metrics['VCPUs_number']
+        memory_actual = VM_metrics['memory_actual']
+
+        if VM['is_control_domain'] == False:
+            pv_info = ''
+            ip = ''
+            os_name = ''
+            distro = ''
+
+            try:
+                metrics = read_metrics(ref)
+
+                # guest pv status
+                PV_drivers_up_to_date = metrics['PV_drivers_up_to_date']
+                PV_drivers_version = metrics['PV_drivers_version']
+                version = "%s.%s-%s" % (PV_drivers_version['major'], PV_drivers_version['minor'], PV_drivers_version['build'])
+                PV_info = "%s %s" % (PV_drivers_up_to_date, version)
+
+                # guest_os
+                os = metrics['os_version']['name']
+                distro = metrics['os_version']['distro']
+                if distro == 'windows':
+                    os_name = os.split('|')[0].strip()
+                else:
+                    os_name = os
+
+                # guest_ip
+                networks = metrics['networks']
+                if '0/ip' in networks.keys():
+                    ip = networks['0/ip']
+
+            except:
+                pass
+
+            name_label = VM['name_label']
+            print "%-10s VCPUs_number:%s|memory_actual:%s|pv_info:%s|ip:%s|distro:%s|os_name:%s" % (name_label, VCPUs_number, memory_actual, pv_info, ip, distro, os_name)
+
+except Exception, e:
+    sys.exit('error: %s' % str(e))
