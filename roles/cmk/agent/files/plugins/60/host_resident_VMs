@@ -24,7 +24,7 @@ try:
     this_host = xenapi.host.get_record(this_record)
     refs = this_host['resident_VMs']
 
-    print '<<<XenAPI_host_resient_VMs>>>'
+    print '<<<XenAPI_host_resident_VMs>>>'
     for ref in refs:
         VM = xenapi.VM.get_record(ref)
         ref_VM_metrics = xenapi.VM.get_metrics(ref)
