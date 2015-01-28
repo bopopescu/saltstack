@@ -6,6 +6,7 @@ plugins_deps:
       - freeipmi
       - bind-utils
       - pynag
+      - lm_sensors
       - nagios-plugins-ping
       - nagios-plugins-dns
       - nagios-plugins-setuid
