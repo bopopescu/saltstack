@@ -11,7 +11,7 @@ try:
     this_record = xenapi.session.get_this_host(sess._session)
     this_host = xenapi.host.get_record(this_record)
 
-    check_item = '''<<<license_params>>>'''
+    check_item = '''<<<XenAPI_host_license_params>>>'''
     print check_item
     for key, val in this_host['license_params'].items():
         print "%-35s: %s" % (key, val)

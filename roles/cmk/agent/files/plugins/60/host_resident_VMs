@@ -42,10 +42,13 @@ try:
                 metrics = read_metrics(ref)
 
                 # guest pv status
-                PV_drivers_up_to_date = metrics['PV_drivers_up_to_date']
                 PV_drivers_version = metrics['PV_drivers_version']
-                version = "%s.%s-%s" % (PV_drivers_version['major'], PV_drivers_version['minor'], PV_drivers_version['build'])
-                PV_info = "%s %s" % (PV_drivers_up_to_date, version)
+                major = PV_drivers_version['major']
+                minor = PV_drivers_version['minor']
+                micro = PV_drivers_version['micro']
+                build = PV_drivers_version['build']
+                version = "%s.%s.%s-%s" % (major, minor, micro, build)
+                pv_info = "%s(%s)" % (metrics['PV_drivers_up_to_date'], version)
 
                 # guest_os
                 os = metrics['os_version']['name']
@@ -64,7 +67,7 @@ try:
                 pass
 
             name_label = VM['name_label']
-            print "%-10s VCPUs_number:%s|memory_actual:%s|pv_info:%s|ip:%s|distro:%s|os_name:%s" % (name_label, VCPUs_number, memory_actual, pv_info, ip, distro, os_name)
+            print "%-10s VCPUs_number:%s,memory_actual:%s,pv_info:%s,ip:%s,distro:%s,os_name:%s" % (name_label, VCPUs_number, memory_actual, pv_info, ip, distro, os_name)
 
 except Exception, e:
     sys.exit('error: %s' % str(e))

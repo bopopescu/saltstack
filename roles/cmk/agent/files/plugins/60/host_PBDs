@@ -17,16 +17,12 @@ try:
     print '<<<XenAPI_host_PBDs>>>'
     for ref in this_host['PBDs']:
         PBD = xenapi.PBD.get_record(ref)
+        print "[%s]" % PBD['uuid']
+        print "  currently_attached: %s" % PBD['currently_attached']
+
         device_config = PBD['device_config']
-        if 'serverpath' in device_config.keys():
-            pbd = "server  : %s%s" % (device_config['server'], device_config['serverpath'])
-        elif 'legacy_mode' in device_config.keys():
-            pbd = "location: %s %s" % (device_config['location'], device_config['legacy_mode'])
-        elif 'device' in device_config.keys():
-            pbd = "device  : %s" % device_config['device']
-        elif 'location' in device_config.keys():
-            pbd = "location: %s" % device_config['location']
-        print pbd
+        for key, val in device_config.items():
+            print "%20s: %s" % (key, val)
 
 except Exception, e:
     sys.exit('error: %s' % str(e))
