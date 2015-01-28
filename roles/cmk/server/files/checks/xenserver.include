@@ -1,0 +1,83 @@
+# parse each command's output entry likes below format
+# to a dict within section <<<xenserver>>>
+#
+#<<<xenserver>>>
+#[cmd1_descripton]
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+#[cmd2_descripton]
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+
+def parse_data(info):
+    dict = {}
+    name = None
+    for line in info:
+        # a new entry begins
+        if line[0].startswith('['):
+            name = line[0][1:-1]
+            dict[name] = []
+            continue
+        if name:
+            dict[name].append(line)
+    return dict
+
+# parse entry like below format:
+#     key : val
+#     key : val
+#     key : val
+#     .......
+
+def get_entry(cmd, info):
+    import re
+
+    dict = parse_data(info)
+    data = {}
+    val = ''
+    for list in dict[cmd]:
+        line = ' '.join(list)
+        line = re.sub('\s+:', ':', line)
+        line = re.sub(':\s+', ':', line)
+        comps = line.split(':', 1)
+        key = comps[0]
+        if len(comps) > 1:
+            val = comps[1]
+        data[key] = val
+    return data
+
+# parse cmd's ouput to dict like below format:
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+#uuid      : val
+#     key1 : val
+#     key2 : val
+# ......
+
+def get_entries(cmd, info):
+    entry = parse_data(info)
+    dict = {}
+    for line in entry[cmd]:
+        if line.startswith('uuid'):
+            uuid = str(line.split()[-1])
+            dict[uuid] = {}
+            continue
+        if uuid:
+            line = line.strip('\n')
+            key = line.split()[0]
+            val = line.split(':', 1)[-1].strip()
+            dict[uuid][key] = val
+    return dict

@@ -1,0 +1,47 @@
+def inventory_xenserver_host_cpu_info(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('host_cpu_info'):
+       item = (None, None)
+       inventory.append(item)
+    return inventory
+
+def check_xenserver_host_cpu_info(item, param, info):
+    data = get_entry('host_cpu_info', info)
+    status = 0
+    infotext = ''
+    for key, val in data.items():
+        print '%s: %s\n' % (key, val)
+    return (status, infotext)
+
+check_info['xenserver.host_cpu_info'] = {
+    'service_description': 'Host CPU info',
+     'inventory_function': inventory_xenserver_host_cpu_info,
+         'check_function': check_xenserver_host_cpu_info,
+           'has_perfdata': False,
+               'includes': "xenserver.include",
+}
+
+def inventory_xenserver_host_info(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('host_info'):
+       item = (None, None)
+       inventory.append(item)
+    return inventory
+
+def check_xenserver_host_info(item, param, info):
+    data = get_entry('host_info', info)
+    status = 0
+    infotext = ''
+    for key, val in data.items():
+        print '%s: %s' % (key, val)
+    return (status, infotext)
+
+check_info['xenserver.host_info'] = {
+    'service_description': 'Host info',
+     'inventory_function': inventory_xenserver_host_info,
+         'check_function': check_xenserver_host_info,
+           'has_perfdata': False,
+               'includes': "xenserver.include",
+}
