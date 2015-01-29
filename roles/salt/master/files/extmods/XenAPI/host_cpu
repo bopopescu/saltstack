@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+import sys, os
+
+if not os.path.exists('/etc/xensource-inventory'):
+    sys.exit()
+else:
+    import XenAPI
+
+sess = XenAPI.xapi_local()
+try:
+    sess.login_with_password('', '')
+    xenapi = sess.xenapi
+
+    this_record = xenapi.session.get_this_host(sess._session)
+    this_host = xenapi.host.get_record(this_record)
+    cpu_info = this_host['cpu_info']
+
+    print '<<<XenAPI_host_cpu>>>'
+    for key, val in cpu_info.items():
+        print "%-24s: %s" % (key, val)
+
+except Exception, e:
+    sys.exit('error: %s' % str(e))
