@@ -1,3 +1,11 @@
+ipmi_modules:
+  file:
+    - managed
+    - name: /etc/sysconfig/modules/load_ipmi.modules
+    - mkdir: True
+    - mode 0755
+    - source: salt://ipmi/files/load_ipmi.modules
+
 {% if grains['os'] == 'XenServer' %}
 ipmi-pkgs:
   pkg.installed:
@@ -9,15 +17,4 @@ ipmi-pkgs:
 ipmi_si:
   kmod.present
 
-enable_kmod_ipmi:
-  cmd.run:
-    - name: sed -i '/^blacklist ipmi_si/s/^/#/' /etc/modprobe.d/blacklist-ipmi
-    - onlyif: test -c /dev/ipmi0
-    - stateful: True
-
-rc_ipmi:
-  cmd.run:
-    - name: echo "modprobe ipmi_si" >> /etc/rc.local > /dev/null
-    - unless: grep ipmi_si -q /etc/rc.local
-    - stateful: True
 {% endif %}
