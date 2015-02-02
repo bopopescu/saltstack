@@ -1,0 +1,4 @@
+#!/bin/bash
+PATH="/usr/local/bin/;$PATH"
+exec 2>&1
+gitwatch.sh -s 2 -m "network deivces config backup"
