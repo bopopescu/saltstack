@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
 # parse each command's output entry likes below format
 # to a dict within section <<<xenserver>>>
 #
@@ -68,16 +71,73 @@ def get_entry(cmd, info):
 # ......
 
 def get_entries(cmd, info):
-    entry = parse_data(info)
-    dict = {}
-    for line in entry[cmd]:
-        if line.startswith('uuid'):
-            uuid = str(line.split()[-1])
-            dict[uuid] = {}
+    cmd_entries = parse_data(info)
+    cmd_output = cmd_entries[cmd]
+    entry_begin = cmd_output[0][0]
+    entries_dict = {}
+    entry_uuid = None
+    for line in cmd_output:
+        new_line = ' '.join(line)
+        if line[0] == entry_begin:
+            entry_uuid = line[-1]
+            entries_dict[entry_uuid] = {}
             continue
-        if uuid:
-            line = line.strip('\n')
-            key = line.split()[0]
-            val = line.split(':', 1)[-1].strip()
-            dict[uuid][key] = val
-    return dict
+        elif entry_uuid:
+            key = line[0]
+            val = new_line.split(':', 1)[-1].strip()
+            entries_dict[entry_uuid][key] = val
+    return entries_dict
+
+def extra_infotext(entry, extra_keys=[]):
+    extra_infotext = None
+    if len(extra_keys) > 0:
+        extra_info = []
+        for key in extra_keys:
+            extra_text = "%s: %s" % (key, entry[key])
+            extra_info.append(extra_text)
+        extra_infotext = ' '.join(extra_info)
+    else:
+        extra_infotext = ''
+    return extra_infotext
+
+def check_lost_patches(patches_checklist, info):
+    entries = get_entries('patch_list', info)
+    patches_installed = []
+    for uuid in entries.keys():
+        patch_name_label = entries[uuid]['name-label']
+        patches_installed.append(patch_name_label)
+
+    patches_lost = [ name_label for name_label in patches_checklist if name_label not in patches_installed ]
+    status = 0
+    infotext = ''
+    if len(patches_lost) > 0:
+        status = 1
+        infotext = 'WARN - %s patches missing: %s' % (len(patches_lost), ' '.join(patches_lost))
+    elif len(patches_lost) == 0:
+        status = 0
+        infotext = 'WARN - all patches in check list installed'
+    return (status, infotext)
+
+def check_license_status(params, info):
+    import time
+    from datetime import date
+
+    data = get_entry('host_license_view', info)
+    expiry = time.strptime(data['expiry'][0:8], "%Y%m%d")[0:3]
+    expiry_on = date(int(expiry[0]), int(expiry[1]), int(expiry[2]))
+    left_days = (expiry_on - date.today()).days
+
+    warn, crit = params
+    status = 0
+    infotext = None
+    if left_days < crit:
+        status = 2
+        infotext = 'CRIT - host license will expire after %s(!!) days (expire at %s), (levels at %s/%s days)' % (left_days, data['expiry'], warn, crit)
+    elif left_days >= warn and left_days < crit:
+        status = 1
+        infotext = 'WARN - host license will expire after %s(!) days (expire at %s), (levels at %s/%s days)' % (left_days, data['expiry'], warn, crit)
+    elif left_days > warn:
+        status = 0
+        infotext = 'OK - host license will expire after %s days (expire at %s), (levels at %s/%s days)' % (left_days, data['expiry'], warn, crit)
+
+    return (status, infotext)

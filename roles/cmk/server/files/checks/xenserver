@@ -1,47 +1,178 @@
-def inventory_xenserver_host_cpu_info(info):
+#!/usr/bin/env python
+
+#
+# parse command: xe host-cpu-info
+#
+def inventory_xenserver_cpu(info):
     dict = parse_data(info)
     inventory = []
     if dict.has_key('host_cpu_info'):
-       item = (None, None)
-       inventory.append(item)
+        item = (None, None)
+        inventory.append(item)
     return inventory
 
-def check_xenserver_host_cpu_info(item, param, info):
-    data = get_entry('host_cpu_info', info)
-    status = 0
-    infotext = ''
-    for key, val in data.items():
-        print '%s: %s\n' % (key, val)
-    return (status, infotext)
+def check_xenserver_cpu(item, param, info):
+    cpu_info = get_entry(cmd='host_cpu_info', info=info)
+    attrs = ['modelname', 'cpu_count', 'speed', 'vendor']
+    attr_list= []
+    for attr in attrs:
+        attr_list.append("%s: %s" % (attr, cpu_info[attr]))
+    infotext = ';'.join(attr_list)
+    return (0, infotext)
 
-check_info['xenserver.host_cpu_info'] = {
-    'service_description': 'Host CPU info',
-     'inventory_function': inventory_xenserver_host_cpu_info,
-         'check_function': check_xenserver_host_cpu_info,
-           'has_perfdata': False,
-               'includes': "xenserver.include",
+check_info["xenserver.cpu"] = {
+    'check_function':          check_xenserver_cpu,
+    'inventory_function':      inventory_xenserver_cpu,
+    'service_description':     'XenServer CPU',
+    'includes':                ['xenserver.include']
 }
 
-def inventory_xenserver_host_info(info):
+#
+# parse command: xe host-list uuid=
+#
+xs_memused_default_levels = (80, 90)
+def inventory_xenserver_memory(info):
     dict = parse_data(info)
     inventory = []
     if dict.has_key('host_info'):
-       item = (None, None)
-       inventory.append(item)
+        item = (None, 'xs_memused_default_levels')
+        inventory.append(item)
     return inventory
 
-def check_xenserver_host_info(item, param, info):
-    data = get_entry('host_info', info)
-    status = 0
-    infotext = ''
-    for key, val in data.items():
-        print '%s: %s' % (key, val)
+def check_xenserver_memory(_no_item, params, info):
+    host_info = get_entry('host_info', info)
+    memused_percent = float(1.00 - float(host_info['free_memory']) / float(host_info['total_memory'])) * 100
+    memused = int(host_info['total_memory']) - int(host_info['free_memory'])
+    warn, crit = params
+    if memused_percent > crit:
+         status = 2
+         infotext = 'CRIT - host memory used %.2f%% (%s/%s MB), (levels at %s/%s %%)' % (
+             memused_percent, memused, host_info['total_memory'], warn, crit)
+    elif memused_percent > warn and memuse_percent < crit:
+         status = 1
+         infotext = 'WARN - host memory used %.2f%% (%s/%s MB), (levels at %s/%s %%)' % (
+             memused_percent, memused, host_info['total_memory'], warn, crit)
+    elif memused_percent < warn:
+         status = 0
+         infotext = 'OK - host memory used %.2f%% (%s/%s MB), (levels at %s/%s %%)' % (
+             memused_percent, memused, host_info['total_memory'], warn, crit)
     return (status, infotext)
 
-check_info['xenserver.host_info'] = {
-    'service_description': 'Host info',
-     'inventory_function': inventory_xenserver_host_info,
-         'check_function': check_xenserver_host_info,
-           'has_perfdata': False,
-               'includes': "xenserver.include",
+check_info["xenserver.memory"] = {
+    'check_function':          check_xenserver_memory,
+    'inventory_function':      inventory_xenserver_memory,
+    'service_description':     'XenServer memory',
+    'includes':                ['xenserver.include'],
+}
+
+#
+# return host info
+#
+
+def inventory_xenserver_host(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('host_info'):
+        item = (None, None)
+        inventory.append(item)
+    return inventory
+
+def check_xenserver_host(no_item, no_param, info):
+    status = 0
+    infotext = ''
+    host_info = get_entry('host_info', info)
+    xen_version = '%s.%s%s' % (host_info['xen_major'], host_info['xen_minor'], host_info['xen_extra'])
+    attrs = ['release', 'version', 'machine', 'cpu_mhz', 'nr_cpus', 'nr_nodes', 'threads_per_core', 'cores_per_socket', ]
+    attr_list= []
+    for attr in attrs:
+        attr_list.append("%s: %s" % (attr, host_info[attr]))
+    infotext = ';'.join(attr_list)
+    return (status, infotext)
+
+check_info["xenserver.host"] = {
+    'check_function':          check_xenserver_host,
+    'inventory_function':      inventory_xenserver_host,
+    'service_description':     'XenServer host',
+    'includes':                ['xenserver.include'],
+}
+
+#
+# parse command: xe host-licnese-view uuid=
+#
+xs_license_expiry_levels = (30, 10)
+def inventory_xenserver_license(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('host_license_view'):
+        item = (None, 'xs_license_expiry_levels')
+        inventory.append(item)
+    return inventory
+
+def check_xenserver_license(_no_item, params, info):
+    license_status = check_license_status(params, info)
+    return license_status
+
+check_info["xenserver.license"] = {
+    'check_function':          check_xenserver_license,
+    'inventory_function':      inventory_xenserver_license,
+    'service_description':     'XenServer license',
+    'includes':                ['xenserver.include'],
+}
+
+#
+# parse command: xe patch-list
+#
+xs_patches_checklist = ['XS602E021']
+def inventory_xenserver_patches(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('patch_list'):
+        item = (None, 'xs_patches_checklist')
+        inventory.append(item)
+    return inventory
+
+def check_xenserver_patches(_no_item, params, info):
+    return check_lost_patches(params, info)
+
+check_info["xenserver.patches"] = {
+    'check_function':          check_xenserver_patches,
+    'inventory_function':      inventory_xenserver_patches,
+    'service_description':     'XenServer patches',
+    'includes':                ['xenserver.include'],
+}
+
+#
+# parse command: xe vm-list
+#
+def inventory_xenserver_vm(info):
+    dict = parse_data(info)
+    inventory = []
+    if dict.has_key('vm_list'):
+        item = (None, None)
+        inventory.append(item)
+    return inventory
+
+def check_xenserver_vm(_no_item, params, info):
+    dict = get_entries('vm_list', info)
+    vm_count = len(dict.keys())
+    vm_stopped = 0
+    vm_running = 0
+    perfdata = []
+    for uuid in dict.keys():
+        if dict[uuid]['power-state'] == 'stopped':
+            vm_stopped += 1
+        elif dict[uuid]['power-state'] == 'running':
+            vm_running += 1
+    perfdata.append(("VM Running", vm_running, None, None, 0, vm_count))
+    perfdata.append(("VM Stopped", vm_stopped, None, None, 0, vm_count))
+    status = 0
+    infotext = 'OK - %s VMs running, %s VMs stopped on this host' % (vm_running, vm_stopped)
+    return (status, infotext, perfdata)
+
+check_info["xenserver.vm"] = {
+    'check_function':          check_xenserver_vm,
+    'inventory_function':      inventory_xenserver_vm,
+    'service_description':     'XenServer VM',
+    'has_perfdata':            True,
+    'includes':                ['xenserver.include'],
 }
