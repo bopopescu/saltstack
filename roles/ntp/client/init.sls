@@ -1,28 +1,31 @@
-{% if grains['os_family'] =='RedHat' %}
-{% set ntp = 'ntp' %}
+{% if grains['os'] in ['RedHat', 'CentOS'] %}
+ntp_server:
+  pkg:
+    - installed
+    - name: ntp
 {% endif %}
 
 {% if grains['os_family'] =='Debian' %}
-{% set ntp = ntpd %}
-{% endif %}
-
-ntpd:
+ntp_server:
   pkg:
     - installed
-    - name: {{ ntp }}
-  service:
-    - running
-    - enable: True
-    - reload: True
-    - watch:
-      - file: /etc/ntp.conf
-    - require:
-      - pkg: ntp
+    - name: ntpd
+{% endif %}
+
+ntpd_conf:
   file:
     - managed
     - name: /etc/ntp.conf
     - source: salt://ntp/client/ntp.conf.jinja
     - template: jinja
+  service:
+    - running
+    - enable: True
+  cmd:
+    - run
+    - name: service ntpd reload > /dev/null
+    - require:
+      - file: /etc/ntp.conf
 
 Asia/Shanghai:
   timezone:
@@ -36,6 +39,7 @@ sysconfig_clock:
     - source: salt://ntp/client/files/sysconfig
 
 hwclock -w:
-  cmd.run:
+  cmd:
+    - run
     - onlyif: test -f /dev/rtc
     - stateful: True

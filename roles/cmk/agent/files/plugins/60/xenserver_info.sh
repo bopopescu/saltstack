@@ -13,16 +13,17 @@ is_xenserver ()
   fi
 }
 
-uuid ()
-# print current host's uuid
-{
-  awk -F "'" '/INSTALLATION_UUID/ { print $2}' /etc/xensource-inventory
-}
-
 name_label ()
 # print current host's name label
 {
-  xe host-list params=name-label --minimal uuid=$(uuid)
+  xl info | awk '/^host/ { print $NF }'
+}
+
+uuid ()
+# print current host's uuid
+{
+  name_label=$(name_label)
+  xe host-list name-label=$name_label --minimal
 }
 
 host_info ()
@@ -160,20 +161,21 @@ pool_param_list ()
 
 is_xenserver
 echo "<<<xenserver>>>"
-host_info
-host_param_list
 host_cpu_info
-host_cpu_list
-host_cpu_param_list
+host_info
 host_license_view
+#vm_param_list
+patch_list
+host_param_list
+host_cpu_list
+
+host_cpu_param_list
 pbd_list
 pbd_param_list
 pif_list
 pif_param_list
 vm_list
-vm_param_list
 sr_list
 sr_param_list
 pool_list
 pool_param_list
-patch_list

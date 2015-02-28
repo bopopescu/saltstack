@@ -3,7 +3,7 @@ ipmi_modules:
     - managed
     - name: /etc/sysconfig/modules/load_ipmi.modules
     - mkdir: True
-    - mode 0755
+    - mode: 0755
     - source: salt://ipmi/files/load_ipmi.modules
 
 {% if grains['os'] == 'XenServer' %}

@@ -5,7 +5,7 @@ include:
   - repos.base
   - repos.epel
   - repos.rpmforge
-  - ipatbles
+  - iptables
   - ipmi
   - cmk.agent
   - ntp.client

@@ -9,11 +9,9 @@ smem
 psinfo
 monitorix
 tsar
-NRDP
 procps
 xenwatch
 wbox
-virt-what
 truecrypt
 xenwebmanager
 zabbix20
@@ -27,7 +25,6 @@ freenac
 lsvpd
 wol
 watchdog
-sos
 smolt-server
 rear
 rancid
@@ -47,16 +44,10 @@ backulia
 cfg2html
 facter
 dconf
-firmware-tools
 fio
 iotop
 iozone
-hwdata
-hardinfo
 iogen
-ipmiutil
 ipplan
 kudzu
-lm_sensors
-lshw
 snmpcheck

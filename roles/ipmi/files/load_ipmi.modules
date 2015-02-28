@@ -1,5 +1,5 @@
 #!/bin/bash
-if dmidecode | grep IPMI
+if dmidecode | grep -q IPMI
 then
     MODULES="ipmi_si ipmi_devintf ipmi_watchdog ipmi_msghandler"
     for module in $MODULES
