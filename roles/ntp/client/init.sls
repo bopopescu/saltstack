@@ -16,16 +16,20 @@ ntpd_conf:
   file:
     - managed
     - name: /etc/ntp.conf
-    - source: salt://ntp/client/ntp.conf.jinja
-    - template: jinja
+    - source: salt://ntp/client/files/ntp.conf
   service:
     - running
+    - name: ntpd
     - enable: True
-  cmd:
-    - run
-    - name: service ntpd reload > /dev/null
-    - require:
+    - reload: True
+    - watch:
       - file: /etc/ntp.conf
+
+step-tickers:
+  file:
+    - managed
+    - name: /etc/ntp/step-tickers
+    - source: salt://ntp/client/files/step-tickers
 
 Asia/Shanghai:
   timezone:
