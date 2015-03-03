@@ -1,28 +1,20 @@
-def ipmi():
-  import commands, re
-  info = commands.getoutput('ipmitool lan print')
-  ipmi = {}
-  for line in info.split('\n'):
-    if re.match(r'IP Address Source\s+', line):
-      (k, v) = line.split(':')
-      ipmi['ipsrc'] = v.strip(' ')
-    if re.match(r'^IP Address\s+', line):
-      (k, v) = line.split(':')
-      ipmi['ipaddr'] = v.strip(' ')
-    if re.match(r'^Subnet Mask\s+', line):
-      (k, v) = line.split(':')
-      ipmi['netmask'] = v.strip(' ')
-    if re.match(r'^MAC Address\s+', line):
-      (k, v) = line.split(':', 1)
-      ipmi['mac'] = v.strip(' ')
-    if re.match(r'^Default Gateway IP\s+', line):
-      (k, v) = line.split(':')
-      ipmi['defgw_ip'] = v.strip(' ')
-    if re.match(r'^Default Gateway MAC\s+', line):
-      (k, v) = line.split(':', 1)
-      ipmi['defgw_mac'] = v.strip(' ')
-    
-  grains = {}
-  grains['ipmi'] = {}
-  grains['ipmi'] = ipmi
-  return grains
+import subprocess
+
+def read_dmi():
+    p = subprocess.Popen('dmidecode -t 38 | grep -q IPMI && ipmitool lan print', stdout=subprocess.PIPE, shell=True)
+    out = p.communicate()[0]
+    ipmi = {}
+    lines = out.splitlines()
+    if lines[0].startswith('Set in Progress'):
+        for line in lines:
+            comps = line.split(':', 1)
+            key = comps[0].strip()
+            if len(comps) > 0:
+                val = comps[1].strip()
+            else:
+                val = None
+            ipmi[key] = val
+
+    grains = {}
+    grains['IPMI'] = ipmi
+    return grains

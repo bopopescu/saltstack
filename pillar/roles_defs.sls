@@ -1,18 +1,16 @@
 {% set
   roles = {
-    'dns': ['dns01', 'dns02'],
-    'ntp': ['ntp', 'ntp01'],
-    'mail': ['mail', 'mail01'],
-    'nagios': ['nagios01', 'nagios02'],
-    'backup': ['backup01'],
-    'ldap': ['ldap', 'ad'],
-    'compute': ['xstest1', 'xstest2'],
-  }
-%}
-
-{% set
-  cluster = {
-    'z2p201c1': ['xstest1.gdcloud.com', 'xstest2'],
+    'dns_server': ['dns01', 'dns02'],
+    'ntp_server': ['ntp', 'ntp01'],
+    'mail_server': ['mail', 'mail01'],
+    'nagios_server': ['nagios01', 'nagios02'],
+    'backup_server': ['backup01'],
+    'ldap_server': ['ldap', 'ad'],
+    'squid_server': ['squid'],
+    'mysql_server': ['csdb-master', 'csdb-slave'],
+    'web_server': ['csm01', 'csm02'],
+    'ftp_server': ['ftp01'],
+    'salt-master': ['salt'],
   }
 %}
 
@@ -23,9 +21,7 @@ roles:
   {% endif %}
 {% endfor %}
 
-cluster:
-{% for name, members in cluster.items() %}
-  {% if grains['id'] in members %}
-    - {{ name }}
-  {% endif %}
-{% endfor %}
+{% if grains['os'] == 'XenServer' %}
+{% set pool = salt['cmd.run']('uname -a') %}
+pool: {{ pool }}
+{% endif %}

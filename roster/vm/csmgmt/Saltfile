@@ -1,0 +1,4 @@
+salt-ssh:
+    config_dir: /srv/salt/roster/vm/csmgmt
+    max_prox: 30
+    wipe_ssh: true

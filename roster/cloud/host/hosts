@@ -1,0 +1,3 @@
+[z2p1c1]
+xs02 ansible_ssh_user=root ansible_ssh_host=192.168.11.19 ansible_ssh_port=22 ansible_ssh_pass='Tianren.481~m'
+xs03 ansible_ssh_user=root ansible_ssh_host=192.168.11.14 ansible_ssh_port=22 ansible_ssh_pass='Tianren.481~m'
