@@ -17,6 +17,8 @@ ntpd_conf:
     - managed
     - name: /etc/ntp.conf
     - source: salt://ntp/client/files/ntp.conf
+
+restart_ntpd:
   service:
     - running
     - name: ntpd
