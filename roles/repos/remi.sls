@@ -1,3 +1,9 @@
+mirrorslist_remi:
+  file:
+    - managed
+    - name: /etc/yum.repos.d/mirrors-remi-{{ grains['osmajorrelease'][0] }}
+    - source: salt://repos/files/mirrors-remi-{{ grains['osmajorrelease'][0] }}
+
 repo_remi:
   file:
     - managed
