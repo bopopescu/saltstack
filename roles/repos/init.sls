@@ -11,6 +11,10 @@ repos_files:
     - source: salt://repos/files/
     - exclude_pat: '*.repo'
 
+rpmforge_rpm:
+  pkg.installed:
+    - source: salt://repos/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+
 repo_base:
   pkgrepo:
     - managed
