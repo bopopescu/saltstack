@@ -11,32 +11,32 @@ def read_ipmi():
         key = comps[0].strip()
         if key == 'IP Address':
             try:
-                ipmi['ip'] = comps[1]
+                ipmi['ip'] = comps[1].strip()
             except:
                 ipmi['ip'] = None
         elif key == 'IP Address Source':
             try:
-                ipmi['source'] = comps[1]
+                ipmi['source'] = comps[1].strip()
             except:
                 ipmi['source'] = None
         elif key == 'MAC Address':
             try:
-                ipmi['mac'] = comps[1]
+                ipmi['mac'] = comps[1].strip()
             except:
                 ipmi['mac'] = None
         elif key == 'Subnet Mask':
             try:
-                ipmi['mask'] = comps[1]
+                ipmi['mask'] = comps[1].strip()
             except:
                 ipmi['mask'] = None
         elif key == 'Default Gateway IP':
             try:
-                ipmi['gateway_ip'] = comps[1]
+                ipmi['gateway_ip'] = comps[1].strip()
             except:
                 ipmi['gateway_ip'] = None
         elif key == 'Default Gateway MAC':
             try:
-                ipmi['gateway_mac'] = comps[1]
+                ipmi['gateway_mac'] = comps[1].strip()
             except:
                 ipmi['gateway_mac'] = None
 
