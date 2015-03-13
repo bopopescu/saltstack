@@ -1,0 +1,5 @@
+[saltstack-epel-6]
+name= saltstack-epel-6
+baseurl=https://copr-be.cloud.fedoraproject.org/results/saltstack/salt/epel-$releasever-$basearch/
+enabled=1
+gpgcheck=0
