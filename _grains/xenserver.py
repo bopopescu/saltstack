@@ -28,21 +28,3 @@ def read_license():
     
         grains['license'] = license
         return grains
-    
-def xl_info():
-    grains = {}
-    p = subprocess.Popen('xl info', stdout=subprocess.PIPE, shell=True)
-    out = p.communicate()[0]
-    xl_info = {}
-    lines = out.splitlines()
-    for line in lines:
-        comps = line.split(':', 1)
-        key = comps[0].strip()
-        if len(comps) > 1:
-            val = comps[1].strip()
-        else:
-            val = None
-        xl_info[key] = val
-
-    grains['xl_info'] = xl_info
-    return grains
