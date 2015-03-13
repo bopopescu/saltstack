@@ -2,19 +2,15 @@
 #coding:utf-8
 import salt.client
 import pprint
+import sys, os
 
 local = salt.client.LocalClient()
-ret = local.cmd('os:XenServer', 'grains.item', expr_form='grain', args=['ipmi'])
+ret = local.cmd('os:XenServer', 'grains.item', ['ipmi'], expr_form='grain')
 
 for output in ret.items():
     minion_id = output[0]
-    data = output[1]
     try:
-        ipmi = data['ipmi']
-    except:
-        ipmi = None
-
-    try:
-        print minion_id, ipmi['IP Address']
+        ipmi = output[1]['ipmi']
+        print minion_id, ipmi['ip']
     except:
         pass
