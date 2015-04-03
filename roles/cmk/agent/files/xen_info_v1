@@ -1,0 +1,35 @@
+#!/bin/bash
+test -e /etc/xensource-inventory || exit 0
+. /etc/xensource-inventory
+
+echo "<<<xenserver_host>>>"
+echo "memory-total: $(xe host-param-get uuid=$INSTALLATION_UUID param-name=memory-total)"
+echo "memory-free: $(xe host-param-get uuid=$INSTALLATION_UUID param-name=memory-free)"
+echo "memory-free-computed: $(xe host-param-get uuid=$INSTALLATION_UUID param-name=memory-free-computed)"
+echo "syslog_destination: $(xe host-param-get param-name=logging uuid=$INSTALLATION_UUID param-key=syslog_destination)"
+
+echo "<<<xenserver_patches>>>"
+patch_uuids=$(xe patch-list hosts:contains=$INSTALLATION_UUID params=uuid --minimal | tr ',' ' ')
+echo "#name-label size name-description"
+for patch in $patch_uuids
+do
+    echo "$(xe patch-param-get param-name=name-label uuid=$patch) $(xe patch-param-get param-name=size uuid=$patch) $(xe patch-param-get param-name=name-description uuid=$patch)"
+done
+
+echo "<<<xenserver_cpu>>>"
+xe host-cpu-info | sed -nr 's/\s+//p'
+xl info | sed -nr '5,9s/\s+//p'
+
+echo "<<<xenserver_product>>>"
+echo "edition: $(xe host-param-get uuid=$INSTALLATION_UUID param-name=edition)"
+
+echo "<<<xenserver_system>>>"
+xl info | sed -nr '/^xen/s/\s+//p'
+
+echo "<<<xenserver_license>>>"
+xe host-license-view uuid=$INSTALLATION_UUID | sed -nr '1,13s/\s+//p'
+
+echo "<<<xenserver_pif>>>"
+mgmt_pif_uuid=$(xe pif-list management=true host-uuid=$INSTALLATION_UUID --minimal)
+echo "dns: $(xe pif-list --minimal params=DNS uuid=$mgmt_pif_uuid)"
+echo "domain: $(xe pif-param-get param-name=other-config param-key=domain uuid=$mgmt_pif_uuid)"
