@@ -1,0 +1,6 @@
+#!/bin/sh
+dmidecode -q -t 38 | grep -q IPMI || exit 0
+MODULES="ipmi_si ipmi_devintf ipmi_watchdog ipmi_poweroff ipmi_msghandler"
+for i in $MODULES ; do
+        modprobe $i >/dev/null 2>&1
+done
