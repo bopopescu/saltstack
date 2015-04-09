@@ -59,9 +59,9 @@ def make_request(url, username, password, token, receiver, content):
 # do notify action
 ###############################################################
 url = 'http://m.5c.com.cn/api/send/?'
-username = 'hdtr'
-password = 'Tianren.SMSabcZ'
-apikey = '8d683e752ec57d1bf38f46ca6c562b19'
+username = 'your_account'
+password = 'your_password'
+apikey = 'your_apikey'
 receiver = os.environ['NOTIFY_CONTACTPAGER']
 content = notification_tmpl()
 notify()
