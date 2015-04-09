@@ -7,6 +7,8 @@ else
     domain=
 fi
 
+nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf)
+
 if [ -e /etc/xensource-inventory ];then
     . /etc/xensource-inventory
     syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
@@ -20,3 +22,4 @@ echo "0 domain_resolv status=0;;;; OK - domain: $domain"
 echo "0 syslog_destination status=0;;;; OK - syslog_destination: $syslog_destination"
 echo "0 version_salt-minion status=0;;;; OK - version: $(rpm -q --qf "%{VERSION}" salt-minion)"
 echo "0 domain_resolv status=0;;;; OK - domain: $domain"
+echo "0 nameserver status=0;;;; OK - domain: $nameserver"
