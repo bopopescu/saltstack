@@ -1,0 +1,8 @@
+#!/bin/bash
+test -e /bin/rpm || exit 0
+CMD="rpm -q --qf %{NAME}\t%{VERSION}\t%{RELEASE}\t%{INSTALLTIME}\n"
+pkg_name="salt-master"
+if which $pkg_name > /dev/null 2>&1;then
+    echo "<<<pkg_info>>>"
+    $CMD $pkg_name
+fi
