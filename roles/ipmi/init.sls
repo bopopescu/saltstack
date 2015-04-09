@@ -1,10 +1,10 @@
 ipmi_modules:
   file:
     - managed
-    - name: /etc/sysconfig/modules/load_ipmi.modules
+    - name: /etc/sysconfig/modules/ipmi.modules
+    - source: salt://ipmi/files/ipmi.modules
     - mkdir: True
     - mode: 0755
-    - source: salt://ipmi/files/load_ipmi.modules
 
 {% if grains['os'] == 'XenServer' %}
 ipmi-pkgs:
