@@ -9,7 +9,6 @@ plugins_deps:
       - lm_sensors
       - nagios-plugins-ping
       - nagios-plugins-dns
-      - nagios-plugins-setuid
 
 agent_plugins:
   file:

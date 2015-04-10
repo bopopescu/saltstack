@@ -10,7 +10,6 @@ ipmi_modules:
 ipmi-pkgs:
   pkg.installed:
     - names:
-      - ipmiutil
       - freeipmi-ipmidetectd
       - freeipmi
 
