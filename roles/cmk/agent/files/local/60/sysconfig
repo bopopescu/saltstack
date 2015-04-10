@@ -11,11 +11,16 @@ nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf)
 
 if [ -e /etc/xensource-inventory ];then
     . /etc/xensource-inventory
-    syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
-    pif_uuid=$(xe pif-list management=true host-uuid=$INSTALLATION_UUID --minimal)
-    pif_domain=$(xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid)
-    pif_dns=$(xe pif-param-get param-name=DNS uuid=$pif_uuid)
 fi
+
+syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
+pif_uuid=$(xe pif-list management=true host-uuid=$INSTALLATION_UUID --minimal)
+pif_domain=$(xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid)
+pif_dns=$(xe pif-param-get param-name=DNS uuid=$pif_uuid)
+
+patches_installed=$(xe patch-list params=name-label hosts:contains=$INSTALLATION_UUID --minimal)
+echo "0 patches_installed status=0;;;; OK - patches installed: $patches_installed"
+
 echo "0 pif_dns status=0;;;; OK - DNS: $pif_dns"
 echo "0 domain_mgmt_pif status=0;;;; OK - domain: $pif_domain"
 echo "0 domain_resolv status=0;;;; OK - domain: $domain"
