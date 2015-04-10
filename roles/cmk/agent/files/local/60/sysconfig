@@ -1,30 +1,70 @@
 #!/bin/bash
-if grep -q '^domain' /etc/resolv.conf;then
-    domain=$(awk '/domain/ {print $2}' /etc/resolv.conf)
-elif grep -q '^search' /etc/resolv.conf;then
-    domain=$(awk '/search/ {print $2}' /etc/resolv.conf)
-else
-    domain=
-fi
-
-nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf)
-
 if [ -e /etc/xensource-inventory ];then
     . /etc/xensource-inventory
 fi
 
-syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
 pif_uuid=$(xe pif-list management=true host-uuid=$INSTALLATION_UUID --minimal)
-pif_domain=$(xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid)
-pif_dns=$(xe pif-param-get param-name=DNS uuid=$pif_uuid)
 
+#######################
+# iscsi_iqn
+#######################
+if xe host-param-get param-name=other-config param-key=iscsi_iqn uuid=$INSTALLATION_UUID >/dev/null 2>&1 ];then
+    iscsi_iqn=$(xe host-param-get param-name=other-config param-key=iscsi_iqn uuid=$INSTALLATION_UUID)
+    echo "0 iscsi_iqn name=0;;;; OK - other-config:iscsi_iqn: $iscsi_iqn"
+else
+    echo "1 iscsi_iqn name=0;;;; WARN - other-config:iscsi_iqn:"
+fi
+
+#######################
+# syslog_destination
+#######################
+if xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID >/dev/null 2>&1 ];then
+    syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
+    echo "0 syslog_destination status=0;;;; OK - logging:syslog_destination: $syslog_destination"
+else
+    echo "2 syslog_destination status=2;;;; CRIT - logging:syslog_destination:"
+fi
+
+#######################
+# other-config:domain
+#######################
+if xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid > /dev/null 2>&1 ;then
+    pif_domain=$(xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid)
+    echo "0 domain_mgmt_pif status=2;;;; OK - other-config:domain: $pif_domain"
+else
+    echo "2 domain_mgmt_pif status=2;;;; CRIT - other-config:domain:"
+fi
+
+#######################
+# DNS
+#######################
+pif_dns=$(xe pif-param-get param-name=DNS uuid=$pif_uuid)
+if [ -z "$pif_dns" ];then
+    echo "1 pif_dns status=0;;;; WARN - DNS:"
+else
+    echo "0 pif_dns status=0;;;; OK - DNS: $pif_dns"
+fi
+
+#######################
+# patches
+#######################
 patches_installed=$(xe patch-list params=name-label hosts:contains=$INSTALLATION_UUID --minimal)
 echo "0 patches_installed status=0;;;; OK - patches installed: $patches_installed"
 
-echo "0 pif_dns status=0;;;; OK - DNS: $pif_dns"
-echo "0 domain_mgmt_pif status=0;;;; OK - domain: $pif_domain"
-echo "0 domain_resolv status=0;;;; OK - domain: $domain"
-echo "0 syslog_destination status=0;;;; OK - syslog_destination: $syslog_destination"
+#######################
+# other
+#######################
+if grep -q '^domain' /etc/resolv.conf;then
+    domain=$(awk '/domain/ {print $2}' /etc/resolv.conf)
+    echo "0 domain_resolv status=0;;;; OK - domain: $domain"
+elif grep -q '^search' /etc/resolv.conf;then
+    domain=$(awk '/search/ {print $2}' /etc/resolv.conf)
+    echo "0 domain_resolv status=0;;;; OK - domain: $domain"
+else
+    echo "2 domain_resolv status=0;;;; CRIT - domain:"
+fi
+
 echo "0 version_salt-minion status=0;;;; OK - version: $(rpm -q --qf "%{VERSION}" salt-minion)"
-echo "0 domain_resolv status=0;;;; OK - domain: $domain"
+
+nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf)
 echo "0 nameserver status=0;;;; OK - nameservers: $nameserver"
