@@ -1,0 +1,7 @@
+#!/bin/bash
+# list guest vms on current host by name-label with power-state is running
+VMs=$(xe vm-list is-control-domain=false  params=name-label power-state=running --minimal | tr ',' '\n')
+for vm in $VMs
+do
+    echo "0 VM_$vm power-state state=0;;; OK - power state is: running"
+done
