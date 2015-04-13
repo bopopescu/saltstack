@@ -5,5 +5,20 @@ test -e /etc/xensource-inventory || exit 0
 VMs=$(xe vm-list is-control-domain=false  params=name-label power-state=running --minimal | tr ',' '\n')
 for vm in $VMs
 do
-    echo "0 VM_$vm power-state state=0;;; OK - power state is: running"
+    echo "0 VM_$vm power-state=0;;; OK - power state is: running"
+done
+
+for vm in $VMs
+do
+echo "<<<<$vm>>>>"
+echo "<<<local>>>"
+pv_status=$(xe vm-list --minimal params=PV-drivers-up-to-date name-label=$vm)
+if [ "$pv_status" == "true" ] ;then
+    echo "0 PV-drivers-up-to-date status=0;;;; OK - status: $pv_status"
+elif [ "$pv_status" == "false" ] ;then
+    echo "1 PV-drivers-up-to-date status=1;;;; WARN - status: $pv_status"
+else
+    echo "2 PV-drivers-up-to-date status=1;;;; CRIT - status: $pv_status"
+fi
+echo "<<<<>>>>"
 done
