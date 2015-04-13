@@ -1,8 +1,6 @@
 include:
   - cmk.agent.plugins
   - cmk.agent.local
-  - cmk.agent.mrpe
-  - cmk.agent.logwatch
 
 xinetd:
   pkg:
@@ -29,6 +27,20 @@ check_mk_agent:
     - dport: 6556
     - proto: tcp
     - save: True
+  file:
+    - managed
+    - name: /etc/check_mk/mrpe.cfg
+    - source: salt://cmk/agent/mrpe.cfg.jinja
+    - template: jinja
+    - mode: 644
+
+cfg_logwatch:
+  file:
+    - managed
+    - name: /etc/check_mk/logwatch.cfg
+    - source: salt://cmk/agent/logwatch.cfg.jinja
+    - template: jinja
+    - mode: 644
 
 smartmontools:
   pkg.installed
