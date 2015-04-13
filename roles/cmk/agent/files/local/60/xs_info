@@ -1,0 +1,54 @@
+#!/bin/bash
+if [ -e /etc/xensource-inventory ];then
+    . /etc/xensource-inventory
+else
+    exit 0
+fi
+
+pif_uuid=$(xe pif-list management=true host-uuid=$INSTALLATION_UUID --minimal)
+
+#######################
+# iscsi_iqn
+#######################
+if xe host-param-get param-name=other-config param-key=iscsi_iqn uuid=$INSTALLATION_UUID >/dev/null 2>&1 ];then
+    iscsi_iqn=$(xe host-param-get param-name=other-config param-key=iscsi_iqn uuid=$INSTALLATION_UUID)
+    echo "0 iscsi_iqn name=0;;;; OK - other-config:iscsi_iqn: $iscsi_iqn"
+else
+    echo "1 iscsi_iqn name=0;;;; WARN - other-config:iscsi_iqn:"
+fi
+
+#######################
+# syslog_destination
+#######################
+if xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID >/dev/null 2>&1 ];then
+    syslog_destination=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
+    echo "0 syslog_destination status=0;;;; OK - logging:syslog_destination: $syslog_destination"
+else
+    echo "2 syslog_destination status=2;;;; CRIT - logging:syslog_destination:"
+fi
+
+#######################
+# other-config:domain
+#######################
+if xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid > /dev/null 2>&1 ;then
+    pif_domain=$(xe pif-param-get param-name=other-config param-key=domain uuid=$pif_uuid)
+    echo "0 domain_mgmt_pif status=2;;;; OK - other-config:domain: $pif_domain"
+else
+    echo "2 domain_mgmt_pif status=2;;;; CRIT - other-config:domain:"
+fi
+
+#######################
+# DNS
+#######################
+pif_dns=$(xe pif-param-get param-name=DNS uuid=$pif_uuid)
+if [ -z "$pif_dns" ];then
+    echo "1 pif_dns status=0;;;; WARN - DNS:"
+else
+    echo "0 pif_dns status=0;;;; OK - DNS: $pif_dns"
+fi
+
+#######################
+# patches
+#######################
+patches_installed=$(xe patch-list params=name-label hosts:contains=$INSTALLATION_UUID --minimal)
+echo "0 patches_installed status=0;;;; OK - patches installed: $patches_installed"
