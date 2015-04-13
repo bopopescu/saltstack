@@ -66,5 +66,5 @@ fi
 
 echo "0 version_salt-minion status=0;;;; OK - version: $(rpm -q --qf "%{VERSION}" salt-minion)"
 
-nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf)
+nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf | tr '\n' ',')
 echo "0 nameserver status=0;;;; OK - nameservers: $nameserver"
