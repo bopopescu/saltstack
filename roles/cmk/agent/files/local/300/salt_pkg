@@ -11,7 +11,7 @@ try:
 except:
     sys.exit()
 
-pkgs = ['salt-minion', 'check_mk-agent']
+pkgs = ['gmp', 'salt-minion', 'yum-utils', 'python-hashlib']
 # salt '*' sys.list_modules
 # salt '*' sys.list_state_modules
 ret = local.cmd('os:XenServer', 'pkg.version', pkgs, expr_form='grain')
