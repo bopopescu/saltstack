@@ -13,26 +13,7 @@ else
 fi
 
 #######################
-# salt-minion
-#######################
-rpm -q --qf "%{VERSION}" salt-minion > /dev/null
-
-if [ $? -eq 0 ];then
-    pkg_version=$(rpm -q --qf "%{VERSION}" salt-minion)
-    echo "0 version_salt-minion status=0;;;; OK - version: $version"
-else
-    pkg_version=$(rpm -q --qf "%{VERSION}" salt-minion)
-    echo "1 version_salt-minion status=1;;;; WARN - $pkg_version"
-fi
-
-#######################
 # nameserver
 #######################
 nameserver=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf | tr '\n' ',')
 echo "0 nameserver status=0;;;; OK - nameservers: $nameserver"
-
-#######################
-# timezone
-#######################
-tz=$(date +%Z%z)
-echo "0 timezone status=0;;;; OK - timezone: $tz"
