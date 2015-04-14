@@ -1,0 +1,32 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check timezone of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+timezone='Asia/Shanghai'
+# salt '*' sys.list_modules
+# salt '*' sys.list_state_modules
+ret = local.cmd('os:XenServer', 'timezone.zone_compare', timezone, expr_form='grain')
+settings = local.cmd('os:XenServer', 'timezone.get_zone', expr_form='grain')
+
+for minion_id in ret.keys():
+    print "<<<<%s>>>>" % minion_id
+    print "<<<local>>>"
+
+    result = ret[minion_id]
+    if result:
+        status = 0
+    else:
+        status = 1
+
+    tz = settings[minion_id]
+    print "%s timezone status=%s;;;; current timezone: %s" % (status, status, tz)
+    print "<<<<>>>>"

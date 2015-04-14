@@ -1,0 +1,33 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check salt-minion version of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+pkgs = ['salt-minion', 'check_mk-agent']
+# salt '*' sys.list_modules
+# salt '*' sys.list_state_modules
+ret = local.cmd('os:XenServer', 'pkg.version', pkgs, expr_form='grain')
+
+for minion_id in ret.keys():
+    print "<<<<%s>>>>" % minion_id
+    print "<<<local>>>"
+
+    for pkg in pkgs:
+        try:
+            ver = ret[minion_id][pkg]
+            status = 0#OK , package installed
+        except:
+            status = 2#CRIT , package not found
+
+        output = "%s pkg.version_%s version=0;;;; %s" % (status, pkg, ver)
+        print output
+
+    print "<<<<>>>>"
