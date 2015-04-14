@@ -1,20 +1,26 @@
+#!/usr/bin/python
 import sys, os
-import urllib
+import requests
 import re, pprint
 import json
 
-def get_object_allocation(object_id):
+def get_object_allocation(_object_id):
 
-  _request_uri = 'http://admin:gdcloud.com@racktables/racktables/api.php?method=get_object_allocation&object_id=%s' % object_id
-  http_body = urllib.urlopen(_request_uri).read()
-  output = json.loads(http_body)
-  objects =  output['response']
-  return objects
+  _auth = ('zhanghu', 'zhanghu')
+  _url = 'http://racktables/racktables/'
+  _api_url = 'http://racktables/racktables/api.php'
+  _params = {}
+  _params['method'] = 'get_object_allocation'
+  _params['object_id'] = _object_id
+  _s = requests.Session()
+  _login = _s.get(_api_url, auth=_auth, params=_params)
+  _objects = _login.json()['response']
+  return _objects
 
-def pprinter(data):
-    pp = pprint.PrettyPrinter()
-    pp.pprint(data)
+def pprinter(_data):
+    _pp = pprint.PrettyPrinter()
+    _pp.pprint(_data)
 
-_racks = get_object_allocation(7)
-for _k, _v in _racks.items():
-    print _k, _v
+_allocs = get_object_allocation(7)
+for _alloc in _allocs.items():
+    pprinter(_alloc)
