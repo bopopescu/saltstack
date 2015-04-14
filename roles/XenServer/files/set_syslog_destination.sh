@@ -2,6 +2,7 @@
 test -f /etc/xensource-inventory || exit 0
 . /etc/xensource-inventory
 
+#log_server='nagios01.hdtr.com,syslog.hdtr.com'
 log_server=192.168.11.9
 
 xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID > /dev/null 2>&1
