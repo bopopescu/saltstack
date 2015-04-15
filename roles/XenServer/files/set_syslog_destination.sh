@@ -3,18 +3,18 @@ test -f /etc/xensource-inventory || exit 0
 . /etc/xensource-inventory
 
 #log_server='nagios01.hdtr.com,syslog.hdtr.com'
-log_server=192.168.11.9
+new_logserver="192.168.11.9"
 
-xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID > /dev/null 2>&1
+cur_logserver=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
 
-if [ $? -eq 1 ];then
-    xe host-param-set logging:syslog_destination=$log_server uuid=$INSTALLATION_UUID
-    echo "set syslog destination to $log_server"
+if [ "$cur_logserver" == "$new_logserver" ];then
+    echo "OK- Do nothing, current syslog destination is: $cur_logserver"
 else
-    output=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
-    if [ $output != $log_server ];then
-        echo "modify syslog destination to $log_server"
+    xe host-param-set logging:syslog_destination=$new_logserver uuid=$INSTALLATION_UUID
+    cur_logserver=$(xe host-param-get param-name=logging param-key=syslog_destination uuid=$INSTALLATION_UUID)
+    if [ "$cur_logserver" == "$new_logserver" ];then
+        echo "OK - syslog destination to $new_logserver successfully"
     else
-        echo "nothing changed, syslog destination is $log_server"
+        echo "WARN - set syslog destination to $new_logserver failed"
     fi
 fi
