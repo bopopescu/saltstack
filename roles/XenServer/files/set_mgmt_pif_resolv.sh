@@ -14,6 +14,12 @@ new_mode='static'
 new_domain='hdtr.com'
 new_dns='192.168.12.30,192.168.12.31'
 
+##### DEBUG ########
+#echo "xe pif-reconfigure-ip uuid=$mgmt_pif_uuid mode=$new_mode IP=$cur_ip netmask=$cur_netmask gateway=$cur_gateway DNS=$new_dns"
+#echo "xe pif-param-set uuid=$mgmt_pif_uuid other-config:domain=$new_domain"
+#exit
+####################
+
 if [ "$cur_dns" == "$new_dns" ];then
     echo "current DNS settings is right, exit"    
 else
