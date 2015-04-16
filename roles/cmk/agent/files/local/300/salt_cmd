@@ -1,0 +1,22 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check cpu info of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+cpu_info = local.cmd('os:XenServer', 'cmd.run', ['xl info | sed -nr "/nr_nodes|cores_per_socket|threads_per_core|nr_cpus/s/\s+//p" | tr "\n" ";"'], expr_form='grain')
+mem_info = local.cmd('os:XenServer', 'cmd.run', ['xl info | sed -nr "/total_memory|free_memory/s/\s+//p" | tr "\n" ";"'], expr_form='grain')
+
+for minion_id in cpu_info:
+    print "<<<<%s>>>>" % minion_id
+    print "<<<local>>>"
+    print "0 cpu_info - {0}".format(cpu_info[minion_id])
+    print "0 mem_info - {0}".format(mem_info[minion_id])
+    print "<<<<>>>>"
