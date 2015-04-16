@@ -1,0 +1,39 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+salt module output: ps
+ps.boot_time:
+ps.cpu_percent:
+ps.cpu_times:
+ps.disk_io_counters:
+ps.disk_partition_usage:
+ps.disk_partitions:
+ps.disk_usage:
+ps.get_pid_list:
+ps.get_users:
+ps.kill_pid:
+ps.network_io_counters:
+ps.num_cpus:
+ps.pgrep:
+ps.pkill:
+ps.swap_memory:
+ps.top:
+ps.total_physical_memory:
+ps.virtual_memory:
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+get_users = local.cmd('os:XenServer', 'ps.get_users', expr_form='grain')
+
+import pprint
+for minion_id in get_users.keys():
+    print "<<<<%s>>>>" % minion_id
+    print "<<<ps.get_users>>>"
+    print pprint.pformat(get_users[minion_id])
+    print "<<<<>>>>"

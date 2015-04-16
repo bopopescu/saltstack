@@ -1,0 +1,43 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+salt module output: ps
+ps.boot_time:
+ps.cpu_percent:
+ps.cpu_times:
+ps.disk_io_counters:
+ps.disk_partition_usage:
+ps.disk_partitions:
+ps.disk_usage:
+ps.get_pid_list:
+ps.get_users:
+ps.kill_pid:
+ps.network_io_counters:
+ps.num_cpus:
+ps.pgrep:
+ps.pkill:
+ps.swap_memory:
+ps.top:
+ps.total_physical_memory:
+ps.virtual_memory:
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+total_physical_memory = local.cmd('os:XenServer', 'ps.total_physical_memory', expr_form='grain')
+num_cpus = local.cmd('os:XenServer', 'ps.num_cpus', expr_form='grain')
+get_users = local.cmd('os:XenServer', 'ps.get_users', expr_form='grain')
+
+for minion_id in num_cpus.keys():
+    print "<<<<%s>>>>" % minion_id
+    print "<<<local>>>"
+    print "0 ps.total_physical_memory total_physical_memory={0};;;; {0}".format(total_physical_memory[minion_id])
+    print "0 ps.num_cpus num_cpus={0};;;; {0}".format(num_cpus[minion_id])
+#    print "0 ps.get_users {0}".format(get_users[minion_id])
+    print "<<<<>>>>"
+
