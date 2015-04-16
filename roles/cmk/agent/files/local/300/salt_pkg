@@ -27,7 +27,6 @@ for minion_id in ret.keys():
         except:
             status = 2#CRIT , package not found
 
-        output = "%s pkg.version_%s - %s".format(status, pkg, ver)
-        print output
+        print "{0} pkg.version_{1} - {2}".format(status, pkg, ver)
 
     print "<<<<>>>>"
