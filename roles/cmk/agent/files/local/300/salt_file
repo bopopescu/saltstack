@@ -23,5 +23,5 @@ for minion_id in ret.keys():
     else:
         status = 1
 
-    print "%s file.search_resolv.conf status=0;;;; OK - /etc/resolv.conf" % status
+    print "%s file.search_resolv.conf - OK - /etc/resolv.conf" % status
     print "<<<<>>>>"

@@ -28,5 +28,5 @@ for minion_id in ret.keys():
         status = 1
 
     tz = settings[minion_id]
-    print "%s timezone status=%s;;;; %s" % (status, status, tz)
+    print "%s timezone.get_zone - %s" % (status, tz)
     print "<<<<>>>>"

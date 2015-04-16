@@ -16,7 +16,7 @@ ret = local.cmd('os:XenServer', 'status.cpuinfo', expr_form='grain')
 for minion_id in ret.keys():
     print "<<<<%s>>>>" % minion_id
     print "<<<local>>>"
-    print "0 status.cpuinfo.model_name status=0;;;; %s" % ret[minion_id]['model name']
-    print "0 status.cpuinfo.cpu_MHz. status=0;;;; %s" % ret[minion_id]['cpu MHz']
-    print "0 status.cpuinfo.cpu_cores. status=0;;;; %s" % ret[minion_id]['cpu cores']
+    print "0 status.cpuinfo.model_name - %s" % ret[minion_id]['model name']
+    print "0 status.cpuinfo.cpu_MHz - %s" % ret[minion_id]['cpu MHz']
+    print "0 status.cpuinfo.cpu_cores - %s" % ret[minion_id]['cpu cores']
     print "<<<<>>>>"

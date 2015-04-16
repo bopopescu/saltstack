@@ -36,8 +36,8 @@ get_users = local.cmd('os:XenServer', 'ps.get_users', expr_form='grain')
 for minion_id in num_cpus.keys():
     print "<<<<%s>>>>" % minion_id
     print "<<<local>>>"
-    print "0 ps.total_physical_memory total_physical_memory={0};;;; {0}".format(total_physical_memory[minion_id])
-    print "0 ps.num_cpus num_cpus={0};;;; {0}".format(num_cpus[minion_id])
+    print "0 ps.total_physical_memory - {0}".format(total_physical_memory[minion_id])
+    print "0 ps.num_cpus - {0}".format(num_cpus[minion_id])
 #    print "0 ps.get_users {0}".format(get_users[minion_id])
     print "<<<<>>>>"
 

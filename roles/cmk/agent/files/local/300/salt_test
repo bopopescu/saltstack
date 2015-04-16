@@ -27,4 +27,4 @@ else
     COUNT=$UP
 fi
 
-echo "$STATE minion.state minions=$COUNT;;;; $STATE_TEXT"
+echo "$STATE minion.state - $STATE_TEXT"
