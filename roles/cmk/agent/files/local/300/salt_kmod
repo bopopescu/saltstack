@@ -11,7 +11,7 @@ try:
 except:
     sys.exit()
 
-kmods_check = ['ipmi_si','ipmi_poweroff', 'ipmi_devintf', 'ipmi_watchdog', 'ipmi_msghandler']
+kmods_check = ['ipmi_si']
 ret = local.cmd('os:XenServer', 'kmod.lsmod', expr_form='grain')
 kmods_loaded = {}
 

@@ -1,7 +1,0 @@
-[flexbox]
-name=FlexBox Release - $releasever - $basearch
-baseurl=http://flexbox.sf.net/centos/5/$basearch
-enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-FLEXBOX
-gpgcheck=0
-priority=0
