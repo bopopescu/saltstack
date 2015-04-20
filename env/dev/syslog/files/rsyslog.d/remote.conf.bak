@@ -1,0 +1,29 @@
+$ModLoad imudp.so
+$UDPServerRun 514
+
+#$template internet-fw01,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/tag_%syslogtag%/app_%APP-NAME%/crit_%syslogseverity-text%/hillstone.log"
+
+$template internet-fw01,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+$template xenserver,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+$template switch,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+$template router,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+#$template storage,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/tag_%syslogtag%/crit_%syslogseverity-text%/%$YEAR%-%$MONTH%-%$DAY%.log"
+
+$template storage,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+$template nagios,"/var/log/remote/%fromhost-ip%/%HOSTNAME%/crit_%syslogseverity-text%/tag_%syslogtag%.log"
+
+$template DynFile,"/var/log/%HOSTNAME%-%YEAR%-%MONTH%-%DAY%.log"
+$template Localhost,"/var/log/remote/%HOSTNAME%/%fromhost-ip%/%YEAR%-%MONTH%-%DAY%.log"
+
+:hostname, contains, "stor0" ?storage
+:hostname, contains, "sw" ?switch
+#:hostname, contains, "router" ?router
+:hostname, contains, "xs" ?xenserver
+:fromhost-ip, isequals, "192.168.9.7" ?internet-fw01
+:fromhost-ip, isequals, "127.0.0.1" ?nagios
+#:hostname, contains, "localhost" ?Localhost

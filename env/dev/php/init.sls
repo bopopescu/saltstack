@@ -1,0 +1,2 @@
+php-common:
+  pkg.installed

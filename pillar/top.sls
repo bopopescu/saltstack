@@ -1,0 +1,5 @@
+base:
+  '*':
+    - repos
+    - pkgs
+    - roles
