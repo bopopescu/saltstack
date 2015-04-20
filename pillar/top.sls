@@ -2,4 +2,3 @@ base:
   '*':
     - repos
     - pkgs
-    - roles
