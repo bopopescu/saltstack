@@ -1,0 +1,8 @@
+/omd/sites/site01/var/log/diskspace.log {
+	missingok
+	rotate 7
+	compress
+	delaycompress
+	notifempty
+	create 640 site01 site01
+}

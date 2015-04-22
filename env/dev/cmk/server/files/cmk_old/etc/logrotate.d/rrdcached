@@ -1,0 +1,7 @@
+/omd/sites/site01/var/log/rrdcached.log {
+        missingok
+        rotate 7
+        compress
+        delaycompress
+        create 640 site01 site01 
+}

@@ -1,0 +1,554 @@
+﻿var backgrounds = Ext.create('Ext.data.Store', {
+    fields: ['path', 'image'],
+    proxy: {
+        type: 'ajax',
+        url:  'panorama.cgi?task=userdata_backgroundimages',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    },
+    autoLoad: false,
+    data : []
+});
+var sounds = Ext.create('Ext.data.Store', {
+    fields: ['path', 'name'],
+    proxy: {
+        type: 'ajax',
+        url:  'panorama.cgi?task=userdata_sounds',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    },
+    autoLoad: false,
+    data : []
+});
+
+TP.getExportTab = function(options) {
+    var exportItems = [{
+        xtype:      'fieldcontainer',
+        fieldLabel: 'Export',
+        items: [{
+            xtype: 'button',
+            text:  'Export Active Tab',
+            handler: function() {
+                Ext.MessageBox.show({
+                    title:      'Current Tab Export',
+                    multiline:  true,
+                    width:      600,
+                    msg:        'Copy this string and use it for later import:',
+                    value:      '# Thruk Panorama Dashboard Export: '+options.tab.title+'\n'+encode64(cp.lastdata[options.tab.id]).match(/.{1,65}/g).join("\n")+"\n# End Export",
+                    buttons:    Ext.MessageBox.OK,
+                    icon:       Ext.MessageBox.INFO
+                });
+            }
+        }]
+    }, {
+        xtype:      'fieldcontainer',
+        fieldLabel: ' ',
+        labelSeparator: ' ',
+        items: [{
+            xtype: 'button',
+            text: 'Export All Open Tabs',
+            handler: function() {
+                Ext.MessageBox.show({
+                    title:      'All Tabs Export',
+                    multiline:  true,
+                    width:      600,
+                    msg:        'Copy this string and use it for later import:',
+                    value:      '# Thruk Panorama Dashboard Export\n'+encode64(cp.encodeValue(cp.readValues())).match(/.{1,65}/g).join("\n")+"\n# End Export",
+                    buttons:    Ext.MessageBox.OK,
+                    icon:       Ext.MessageBox.INFO
+                });
+            }
+        }]
+    }, {
+        xtype:      'fieldcontainer',
+        fieldLabel: 'Import',
+        items: [{
+            xtype: 'button',
+            text: 'Import Tab(s)',
+            handler: function() {
+                Ext.MessageBox.prompt({
+                    title:      'Import Tab(s)',
+                    id:         'importdialog',
+                    multiline:  true,
+                    value:      '',
+                    width:      600,
+                    msg:        'Enter Saved String.<br>This will add the imported tabs next to your current ones.',
+                    buttons:    Ext.MessageBox.OKCANCEL,
+                    icon:       Ext.MessageBox.INFO,
+                    fn:         function(btn, text, window){
+                        if(btn == 'ok') {
+                            if(TP.importAllTabs(text)) {
+                                if(options.close_handler) { options.close_handler(); }
+                            }
+                        }
+                    }
+                });
+            }
+        }]
+    }, {
+        xtype:      'fieldcontainer',
+        fieldLabel: 'Reset',
+        items: [{
+            xtype: 'button',
+            text: 'Reset to Default View',
+            handler: function() {
+                Ext.Msg.confirm('Reset to default view?', 'Do you really want to reset all tabs and windows?', function(button) {
+                    if (button === 'yes') {
+                        if(options.close_handler) { options.close_handler(); }
+                        Ext.MessageBox.alert('Success', 'Reset Successful!<br>Please wait while page reloads...');
+                        window.location = 'panorama.cgi?clean=1';
+                    }
+                });
+            }
+        }]
+    }];
+    var exportTab = {
+        title : 'Import/Export',
+        type  : 'panel',
+        listeners: options.listeners,
+        items: [{
+            xtype : 'panel',
+            layout: 'fit',
+            border: 0,
+            items: [{
+                    xtype:           'form',
+                    bodyPadding:     2,
+                    border:          0,
+                    bodyStyle:       'overflow-y: auto;',
+                    submitEmptyText: false,
+                    defaults:      { anchor: '-12', labelWidth: 130 },
+                    items:           exportItems
+            }]
+        }]
+    };
+    return(exportTab);
+}
+
+
+/* show settings window */
+TP.tabSettingsWindow = function() {
+    var tabpan = Ext.getCmp('tabpan');
+    var tab    = tabpan.getActiveTab();
+
+    /* stop rotation */
+    TP.stopRotatingTabs();
+
+    backgrounds.load();
+    sounds.load();
+
+    var exportTab = TP.getExportTab({tab: tab, close_handler: function() { tab_win_settings.close() }});
+
+    var usersettingsItems = [{
+        xtype:   'panel',
+        html:    'These settings apply to all dashboards and are saved with the user account.',
+        style:   'text-align: center;',
+        padding: '0 0 10 0',
+        border:   0
+    }, {
+        /* rotating tabs */
+        xtype:      'tp_slider',
+        fieldLabel: 'Rotate Tabs',
+        formConf: {
+            minValue:   0,
+            nameS:      'rotate_tabs',
+            nameL:      'rotate_tabs_txt'
+        }
+    }, {
+        /* show server time */
+        xtype:      'checkbox',
+        fieldLabel: 'Show Server Time',
+        name:       'server_time',
+        boxLabel:   '(display server time next to the menu)'
+    }, {
+        /* sounds enabled */
+        xtype:      'checkbox',
+        fieldLabel: 'Enable Sounds',
+        name:       'sounds_enabled',
+        boxLabel:   '(enable sounds if configured for a dashboard)'
+    }];
+    var usersettingsTab = {
+        title : 'User Settings',
+        type  : 'panel',
+        items: [{
+            xtype : 'panel',
+            layout: 'fit',
+            border: 0,
+            items: [{
+                    xtype:           'form',
+                    id:             'usersettingsForm',
+                    bodyPadding:     2,
+                    border:          0,
+                    bodyStyle:       'overflow-y: auto;',
+                    submitEmptyText: false,
+                    defaults:      { anchor: '-12', labelWidth: 130 },
+                    items:           usersettingsItems
+            }]
+        }]
+    };
+
+
+    /* Backend Settings Tab */
+    var backends = TP.getBackendsArray(initial_backends);
+    if(backends.length > 1) {
+        var backendsItems = [{
+                xtype:   'panel',
+                html:    'Filter backends masterset for this dashboard',
+                style:   'text-align: center;',
+                padding: '0 0 10 0',
+                border:   0
+            },{
+                /* use backends */
+                xtype:      'checkbox',
+                fieldLabel: 'Select Backends',
+                name:       'select_backends',
+                listeners: {
+                    change: function(This, newValue, oldValue, eOpts) {
+                        this.up().items.get(2).setDisabled(!newValue);
+                    }
+                },
+                checked: tab.xdata.select_backends,
+                boxLabel:   '(enable to select a subset of backends)'
+            }, {
+                /* backends */
+                fieldLabel: 'Backends / Sites',
+                xtype:      'itemselector',
+                name:       'backends',
+                height:     160,
+                disabled:   !tab.xdata.select_backends,
+                buttons:   ['add', 'remove'],
+                store:     backends,
+                value:     tab.xdata.backends
+        }];
+        var backendsTab = {
+            title : 'Backends',
+            type  : 'panel',
+            items: [{
+                xtype : 'panel',
+                layout: 'fit',
+                border: 0,
+                items: [{
+                        xtype:          'form',
+                        id:             'backendsForm',
+                        bodyPadding:     2,
+                        border:          0,
+                        bodyStyle:      'overflow-y: auto;',
+                        submitEmptyText: false,
+                        defaults:      { anchor: '-12', labelWidth: 130 },
+                        items:           backendsItems
+                }]
+            }]
+        };
+    }
+
+
+    /* Dashboard Settings Tab */
+    var iconsetsStore = Ext.create('Ext.data.Store', {
+        fields: ['name', 'sample', 'value'],
+        proxy: {
+            type: 'ajax',
+            url:  'panorama.cgi?task=userdata_iconsets',
+            reader: {
+                type: 'json',
+                root: 'data'
+            }
+        },
+        autoLoad: true,
+        data : []
+    });
+    var dashboardItems = [{
+            xtype:      'checkbox',
+            fieldLabel: 'Locked',
+            name:       'locked',
+            boxLabel:   '(disables dashboard editing)',
+            handler:    function(el, checked) { TP.tabSettingsWindowLocked(tab, checked); }
+        }, {
+            /* tab title */
+            xtype:      'textfield',
+            name:       'title',
+            fieldLabel: 'Title'
+        }, {
+            /* global refresh rate */
+            xtype:      'tp_slider',
+            fieldLabel: 'Refresh Rate',
+            formConf: {
+                minValue:   0,
+                nameS:      'refresh',
+                nameL:      'refresh_txt'
+            }
+        }, {
+            xtype:      'combobox',
+            name:       'background',
+            fieldLabel: 'Background',
+            store:       backgrounds,
+            queryMode:      'remote',
+            triggerAction:  'all',
+            pageSize:       true,
+            selectOnFocus:  true,
+            typeAhead:      true,
+            displayField: 'image',
+            valueField: 'path',
+            listConfig : {
+                getInnerTpl: function(displayField) {
+                    return '<div class="x-combo-list-item" style="overflow: hidden; white-space: nowrap;"><img src="{path}" height=16 width=16> {image}<\/div>';
+                }
+            }
+        }, {
+            fieldLabel:   'Default Icon Set',
+            xtype:        'combobox',
+            name:         'defaulticonset',
+            store:         iconsetsStore,
+            value:        'default',
+            displayField: 'name',
+            valueField:   'value',
+            listConfig : {
+                getInnerTpl: function(displayField) {
+                    return '<div class="x-combo-list-item"><img src="{sample}" height=16 width=16 style="vertical-align:top; margin-right: 3px;">{name}<\/div>';
+                }
+            }
+        }, {
+            /* auto hide panlet header */
+            xtype:      'checkbox',
+            fieldLabel: 'Hide Panlet Header',
+            name:       'autohideheader',
+            boxLabel:   ' (widget header will be displayed on mouse over)'
+        }, {
+            xtype:      'panel',
+            html:       'Place background images in: [% usercontent_folder %]/backgrounds/',
+            style:      'text-align: center;',
+            bodyCls:    'form-hint',
+            padding:    '10 0 0 0',
+            border:      0
+        }];
+    var dashboardTab = {
+        title : 'Dashboard',
+        type  : 'panel',
+        items: [{
+            xtype : 'panel',
+            layout: 'fit',
+            border: 0,
+            items: [{
+                    xtype:          'form',
+                    id:             'dashboardForm',
+                    bodyPadding:     2,
+                    border:          0,
+                    bodyStyle:      'overflow-y: auto;',
+                    submitEmptyText: false,
+                    defaults:      { anchor: '-12', labelWidth: 130 },
+                    items:           dashboardItems
+            }]
+        }]
+    };
+
+
+    /* Sound Settings Tab */
+    var soundItems = [{
+        xtype:      'panel',
+        html:       'Sounds apply to all icon widgets',
+        style:      'text-align: center;',
+        padding:    '0 0 10 0',
+        border:      0
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Unreachable',
+        nameV:      'unreachable_sound',
+        nameR:      'unreachable_repeat',
+        store:       sounds
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Down',
+        nameV:      'down_sound',
+        nameR:      'down_repeat',
+        store:       sounds
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Critical',
+        nameV:      'critical_sound',
+        nameR:      'critical_repeat',
+        store:       sounds
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Warning',
+        nameV:      'warning_sound',
+        nameR:      'warning_repeat',
+        store:       sounds
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Unknown',
+        nameV:      'unknown_sound',
+        nameR:      'unknown_repeat',
+        store:       sounds
+    }, {
+        xtype:      'tp_soundfield',
+        fieldLabel: 'Recovery',
+        nameV:      'recovery_sound',
+        store:       sounds
+    }, {
+        xtype:      'panel',
+        html:       'Place sound files in: [% usercontent_folder %]/sounds/',
+        style:      'text-align: center;',
+        bodyCls:    'form-hint',
+        padding:    '10 0 0 0',
+        border:      0
+    }];
+    var soundsTab = {
+        title : 'Sounds',
+        type  : 'panel',
+        items: [{
+            xtype : 'panel',
+            layout: 'fit',
+            border: 0,
+            items: [{
+                    xtype:          'form',
+                    id:             'soundForm',
+                    bodyPadding:     2,
+                    border:          0,
+                    bodyStyle:      'overflow-y: auto;',
+                    submitEmptyText: false,
+                    defaults:      { anchor: '-12', labelWidth: 70 },
+                    items:           soundItems
+            }],
+            listeners: {
+                afterrender: function() {
+                    Ext.getCmp('soundForm').getForm().setValues(tab.xdata);
+                }
+            }
+        }]
+    };
+
+
+    /* tab layout for settings window */
+    var tabPanel = new Ext.TabPanel({
+        activeTab         : 0,
+        enableTabScroll   : true,
+        items             : [
+            dashboardTab,
+            backendsTab,
+            soundsTab,
+            exportTab,
+            usersettingsTab
+        ]
+    });
+
+    /* the actual settings window containing the panel */
+    var tab_win_settings = new Ext.window.Window({
+        autoShow:    true,
+        modal:       true,
+        width:       500,
+        height:      320,
+        title:       'Settings',
+        layout :     'fit',
+        buttonAlign: 'center',
+        items:       tabPanel,
+        fbar: [{/* cancel button */
+                    xtype:  'button',
+                    text:   'cancel',
+                    handler: function(This) {
+                        tab_win_settings.destroy();
+                    }
+                }, {
+                /* save button */
+                    xtype : 'button',
+                    text:   'save',
+                    handler: function() {
+                        var win     = this.up('window');
+                        var oldautohideheader = tab.xdata.autohideheader;
+
+                        var d_form  = Ext.getCmp('dashboardForm').getForm();
+                        if(!d_form.isValid()) { return false; }
+                        var values = d_form.getFieldValues();
+                        delete values['refresh_txt'];
+                        Ext.apply(tab.xdata, values);
+
+                        var s_form  = Ext.getCmp('soundForm').getForm();
+                        if(!s_form.isValid()) { return false; }
+                        var values = s_form.getFieldValues();
+                        Ext.apply(tab.xdata, values);
+
+                        if(Ext.getCmp('backendsForm')) {
+                            var b_form  = Ext.getCmp('backendsForm').getForm();
+                            if(!b_form.isValid()) { return false; }
+                            var values = b_form.getFieldValues();
+                            Ext.apply(tab.xdata, values);
+                        }
+
+                        tab.applyXdata(undefined, false);
+                        tab.saveState();
+
+                        /* user settings */
+                        var oldstate = Ext.JSON.encode(tabpan.getState());
+                        var u_form  = Ext.getCmp('usersettingsForm').getForm();
+                        if(!u_form.isValid()) { return false; }
+                        var values = u_form.getFieldValues();
+                        delete values['rotate_tabs_txt'];
+                        Ext.apply(tabpan.xdata, values);
+                        var newstate = Ext.JSON.encode(tabpan.getState());
+                        /* avoid useless updates */
+                        if(oldstate != newstate) {
+                            tabpan.saveState();
+                            tabpan.startTimeouts();
+                        }
+
+                        TP.refreshAllSitePanel(tab);
+
+                        /* border setting may have changed, so redraw all panlets with some small delay */
+                        if(oldautohideheader != tab.xdata.autohideheader) {
+                            var panels = TP.getAllPanel(tab);
+                            var delay  = 30;
+                            for(var nr=0; nr<panels.length; nr++) {
+                                var p = panels[nr];
+                                if(p.redrawPanlet) {
+                                    window.setTimeout(Ext.bind(p.redrawPanlet, p, []), delay);
+                                    delay = delay + 30;
+                                }
+                            }
+                        }
+
+                        tab_win_settings.destroy();
+                        return true;
+                    }
+               }
+        ]
+    });
+    Ext.getCmp('dashboardForm').getForm().setValues(tab.xdata);
+    Ext.getCmp('soundForm').getForm().setValues(tab.xdata);
+    Ext.getCmp('usersettingsForm').getForm().setValues(tabpan.xdata);
+};
+
+TP.tabSettingsWindowLocked = function(tab, val) {
+    /* apply to dashboard tab */
+    var dashboardForm = Ext.getCmp('dashboardForm');
+    if(dashboardForm) {
+        dashboardForm.items.each(function(item, idx, len) {
+            if(item.name != 'locked') {
+                item.setDisabled(val);
+            }
+            if(tab.readonly == 1) {
+                item.setDisabled(true);
+            }
+        });
+    }
+    /* apply to sounds tab */
+    var soundForm = Ext.getCmp('soundForm');
+    if(soundForm) {
+        soundForm.items.each(function(item, idx, len) {
+            item.setDisabled(val);
+            if(tab.readonly == 1) {
+                item.setDisabled(true);
+            }
+        });
+    }
+    /* change backends tab */
+    var backendsForm = Ext.getCmp('backendsForm');
+    if(backendsForm) {
+        backendsForm.items.each(function(item, idx, len) {
+            item.setDisabled(val);
+            if(item.name == "backends" && !tab.xdata.select_backends) {
+                item.setDisabled(true);
+            }
+        });
+    }
+};

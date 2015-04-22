@@ -1,5 +1,4 @@
 include:
-  - server.xenserver
+  - cloudstack.cluster.z2p1c1
 
-roles:
-  pool: z2p1c1
+label: {{ grains['id'] }}

@@ -1,0 +1,6 @@
+all_hosts += ["xs231.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs232.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs233.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs234.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs235.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs236.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]

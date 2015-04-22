@@ -1,0 +1,8 @@
+/omd/sites/site01/var/log/thruk.log {
+	missingok
+	rotate 52
+	compress
+	delaycompress
+	notifempty
+	create 640 site01 site01 
+}

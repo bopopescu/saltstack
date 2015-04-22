@@ -1,0 +1,11 @@
+/omd/sites/dev/var/log/gearman/*.log {
+	missingok
+	rotate 52
+	compress
+	delaycompress
+	notifempty
+	create 640 dev dev 
+	postrotate
+		/omd/sites/dev/bin/omd reload gearman_worker > /dev/null
+	endscript
+}

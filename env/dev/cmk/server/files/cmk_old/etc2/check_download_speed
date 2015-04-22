@@ -1,0 +1,16 @@
+#!/usr/bin/python
+import commands
+import sys
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('-u', '--url', dest='url', default='http://mirrors.sohu.com/centos/7/isos/x86_64/CentOS-7.0-1406-x86_64-NetInstall.iso', help="file's url")
+parser.add_option('-s', '--size', dest='size', default='1048576', help="download size")
+opts, args = parser.parse_args()
+size = opts.size
+url = opts.url
+cmd = "curl -r 0-%s -w %%{speed_download} -o /dev/null -s %s" % (size, url)
+speed_byte = float(commands.getoutput(cmd))
+speed_kb = int(speed_byte / 1024)
+print "Download Speed: %s KB/S|speed=%s;;;;" % (speed_kb, speed_kb)
+sys.exit(0)

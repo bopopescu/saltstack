@@ -1,0 +1,66 @@
+﻿[% WRAPPER _conf_objects_frame.tt %]
+
+<table border="0" class='data conftoolobj'>
+  [% IF force_delete %]
+  <tr>
+    <th class='data' colspan=2><a href="conf.cgi?sub=objects&amp;data.id=[% object.get_id() %]">Incoming References of [% object.get_type() | ucfirst +%] [%+ object.get_name() %]</a></th>
+  </tr>
+  <tr>
+    <td class='dataVar' style="text-align:center" colspan=2>
+      <br>
+      [% link = "conf.cgi?sub=objects&action=delete&force=1&data.id=" _ object.get_id() %]
+      [% text = "Really delete this " _ object.get_type() | ucfirst %]
+      [% button(link, text, 'conf_delete_button') %]
+      <br>
+      [% object.get_type() | ucfirst %] has remaining references!
+      <br>
+      <br>
+    </td>
+  </tr>
+  [% END %]
+  <tr>
+    <th class='data' colspan=2><a href="conf.cgi?sub=objects&amp;data.id=[% object.get_id() %]">Incoming References of [% object.get_type() | ucfirst +%] [%+ object.get_name() %]</a></th>
+  </tr>
+  [% FOREACH t = incoming.keys.sort %]
+  <tr>
+    <td class='dataVar'>[% t | ucfirst %]</td>
+    <td class='dataVar'>
+      <ul>
+      [% FOREACH name = incoming.$t.keys.sort %]
+        [% oid = incoming.$t.$name %]
+        <li><a href="conf.cgi?sub=objects&amp;data.id=[% oid %]">[% name %]</a></li>
+      [% END %]
+      </ul>
+    </td>
+  </tr>
+  [% END %]
+  [% IF incoming.keys.size == 0 %]
+  <tr>
+    <td class='dataVar' colspan=2 style="text-align: center;">No incoming references found</td>
+  </tr>
+  [% END %]
+
+  <tr>
+    <th class='data' colspan=2><a href="conf.cgi?sub=objects&amp;data.id=[% object.get_id() %]">Outgoing References of [% object.get_type() | ucfirst +%] [%+ object.get_name() %]</a></th>
+  </tr>
+  [% FOREACH t = outgoing.keys.sort %]
+  <tr>
+    <td class='dataVar'>[% t | ucfirst %]</td>
+    <td class='dataVar'>
+      <ul>
+      [% FOREACH name = outgoing.$t.keys.sort %]
+        <li><a href="conf.cgi?sub=objects&amp;type=[% t %]&amp;data.name=[% name %]">[% name %]</a></li>
+      [% END %]
+      </ul>
+    </td>
+  </tr>
+  [% END %]
+  [% IF outgoing.keys.size == 0 %]
+  <tr>
+    <td class='dataVar' colspan=2 style="text-align: center;">No outgoing references found</td>
+  </tr>
+  [% END %]
+
+</table>
+
+[% END %]

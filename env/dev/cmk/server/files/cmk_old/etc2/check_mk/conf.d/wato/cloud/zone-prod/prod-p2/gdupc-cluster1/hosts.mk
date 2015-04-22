@@ -1,0 +1,5 @@
+all_hosts += ["xs51.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xen53.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs226.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs52.gdcloud.com|wato|state_up|/" + FOLDER_PATH + "/",]
+all_hosts += ["xs54|wato|state_up|/" + FOLDER_PATH + "/",]
