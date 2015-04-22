@@ -1,4 +1,4 @@
 base:
   '*':
-    - repos
-    - pkgs
+    - cloudstack.host.{{ grains['id'] }}
+    - os.{{ grains['os'] }}.602

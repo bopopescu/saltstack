@@ -1,0 +1,2 @@
+roles:
+  ftp: server
