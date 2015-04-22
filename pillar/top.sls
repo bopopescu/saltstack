@@ -1,4 +1,4 @@
 base:
   '*':
-    - cloudstack.host.{{ grains['id'] }}
+    - cloudstack.host.{{ grains['host'] }}
     - os.{{ grains['os'] }}.602
