@@ -7,3 +7,4 @@ set_mgmt_pif_resolv:
   cmd:
     - run
     - name: /root/set_mgmt_pif_resolv.sh
+    - creates: /tmp/set_mgmt_pif_resolv
