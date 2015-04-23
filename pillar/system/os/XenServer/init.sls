@@ -1,2 +1,2 @@
 include:
-  - os_family.RedHat
+  - system.os_family.RedHat
