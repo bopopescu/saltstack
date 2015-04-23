@@ -1,5 +1,5 @@
 base:
   '*':
-    - system.os.{{ grains['os'] }}.{{ grains['osrelease'] }}
+    - system
   'xstest2':
-    - device.server.cloudstack.host.{{ grains['host'] }}
+    - project.cloudstack.host.{{ grains['host'] }}
