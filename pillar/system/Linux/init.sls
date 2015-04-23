@@ -1,2 +1,2 @@
 include:
-  - .{{ grains['os_family' ]}}
+  - system.Linux.{{ grains['os_family' ]}}

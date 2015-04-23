@@ -1,5 +1,5 @@
 include:
-  - .{{ grains['os'] }}
+  - system.Linux.RedHat.{{ grains['os'] }}
 
 yum:
   proxy: 'http://squid:3142'

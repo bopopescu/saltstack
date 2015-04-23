@@ -1,2 +1,2 @@
 include:
-  - {{ grains['osmajorrelease'] }}
+  - system.Linux.RedHat.XenServer.{{ grains['osmajorrelease'] }}
