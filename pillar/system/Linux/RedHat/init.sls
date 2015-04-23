@@ -1,8 +1,20 @@
 include:
   - system.Linux.RedHat.{{ grains['os'] }}
 
+selinux:
+  enabled: False
+  enforcing: disabled
+
+iptables:
+  enabled: False
+
+hwclock:
+
+kmod:
+  loaded:
+    - ipmi_si
+
 yum:
-  proxy: 'http://squid:3142'
   plugin:
     disabled:
       - fastestmirror
