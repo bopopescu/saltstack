@@ -1,2 +1,5 @@
 include:
-  - system.{{ grains['kernel' ]}}
+  - system.{{ grains['domain'] }}
+  - system.{{ grains['kernel'] }}
+
+
