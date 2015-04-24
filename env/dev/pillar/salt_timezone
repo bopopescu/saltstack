@@ -1,0 +1,26 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check timezone of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+pillar = local.cmd('xstest2', 'pillar.items')
+grains = local.cmd('xstest2', 'grains.items')
+
+wato_host = grains['xstest2']['fqdn']
+grains_key = ['kernel', 'os_family', 'os', 'osrelease', 'osarch', 'productname', 'manufacturer', 'virtual']
+hosttags = []
+for key in grains_key:
+    hosttags.append(grains['xstest2'][key])
+
+tags_string = '|'.join(hosttags)
+ipaddr = grains['xstest2']['ipv4'][-1]
+print "all_hosts += [({0}|{1}|wato)]".format(wato_host, tags_string)
+print "ipaddresses.update({{'{0}': '{1}'}})".format('xstest2', ipaddr)

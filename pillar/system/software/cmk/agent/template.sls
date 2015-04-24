@@ -1,0 +1,54 @@
+local:
+  sources:
+    - 43200/salt_cmd
+    - 43200/salt_test
+    - 43200/salt_disk
+    - 43200/salt_ping
+    - 43200/salt_timezone
+    - 43200/salt_ps
+    - 43200/salt_kmod
+    - 43200/salt_pkg
+    - 43200/salt_file
+    - 43200/salt_status
+plugins:
+  sources:
+    - apache_status
+    - arc_raid_status.sh
+    - check_backup
+    - cloud_capacity
+    - cs_capacity.py
+    - db2_mem.sh
+    - dir_size
+    - dmi_sysinfo
+    - dmraid
+    - j4p_performance
+    - jar_signature
+    - kaspersky_av
+    - lmsensors
+    - lnx_psperf
+    - lnx_quota
+    - mailman_lists
+    - mk_inventory.linux
+    - mk_jolokia
+    - mk_logwatch
+    - mk_mysql
+    - mk_oracle
+    - mk_oracle_asm
+    - mk_oracle.new
+    - mk_postgres
+    - mk_sap
+    - mk_tsm
+    - mk_zypper
+    - nfsexports
+    - nginx_status
+    - plesk_backups
+    - plesk_domains
+    - README
+    - resolve_hostname
+    - runas
+    - smart
+    - sylo
+    - symantec_av
+    - unitrends_backup.php
+    - unitrends_replication.py
+    - websphere_mq.sh

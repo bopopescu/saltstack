@@ -6,7 +6,6 @@ ipmi_modules:
     - mkdir: True
     - mode: 0755
 
-{% if grains['os'] == 'XenServer' %}
 ipmi-pkgs:
   pkg.installed:
     - names:
@@ -15,5 +14,3 @@ ipmi-pkgs:
 
 ipmi_si:
   kmod.present
-
-{% endif %}

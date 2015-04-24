@@ -10,10 +10,13 @@ plugins_deps:
       - nagios-plugins-ping
       - nagios-plugins-dns
 
-agent_plugins:
+{% for plugin in pillar['cmk']['plugins'] %}
+cmk_agent_plugin_{{ plugin }}:
   file:
-    - recurse
-    - name: /usr/lib/check_mk_agent/plugins
-    - source: salt://cmk/agent/files/plugins
-    - file_mode: 755
+    - managed
+    - name: /usr/lib/check_mk_agent/plugins/{{ plugin }}
+    - source: salt://cmk/agent/files/plugins/{{ plugin }}
+    - mode: 755
+    - makedirs: True
     - clean: True
+{% endfor %}

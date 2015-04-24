@@ -1,0 +1,32 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check if kmod is loaded
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+kmods_check = ['ipmi_si']
+ret = local.cmd('os:XenServer', 'kmod.lsmod', expr_form='grain')
+kmods_loaded = {}
+
+for minion_id in ret.keys():
+    kmods_loaded[minion_id] = []
+    for entry in ret[minion_id]:
+        kmods_loaded[minion_id].append(entry['module'])
+
+for minion_id in ret.keys():
+    print "<<<<{0}>>>>".format(minion_id)
+    print "<<<local>>>"
+
+    for kmod in kmods_check:
+        if kmod in kmods_loaded[minion_id]:
+            print "0 kmod.is_loaded_{0} - loaded".format(kmod)
+        else:
+            print "1 kmod.is_loaded_{0} - not loaded".format(kmod)
+    print "<<<<>>>>"

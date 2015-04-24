@@ -1,0 +1,27 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check domain settings of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+ret = local.cmd('os:XenServer', 'file.search', '/etc/resolv.conf', '[domain|search] hdtr.com', expr_form='grain')
+
+for minion_id in ret.keys():
+    print "<<<<%s>>>>" % minion_id
+    print "<<<local>>>"
+
+    result = ret[minion_id]
+    if result:
+        status = 0
+    else:
+        status = 1
+
+    print "%s file.search_resolv.conf - OK - /etc/resolv.conf" % status
+    print "<<<<>>>>"

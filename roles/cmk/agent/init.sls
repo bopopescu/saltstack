@@ -1,14 +1,14 @@
-include:
-  - cmk.agent.plugins
-  - cmk.agent.local
-
-xinetd:
+check_mk-agent-deps:
   pkg:
     - installed
+    - names:
+      - xinetd
+      - smartmontools
   service:
     - running
+    - name: xinetd
 
-check_mk_agent:
+check_mk-agent:
   pkg:
     - installed
     - skip_verify: True
@@ -16,6 +16,7 @@ check_mk_agent:
       - check_mk-agent: salt://cmk/agent/files/check_mk-agent-1.2.4p5-1.noarch.rpm
     - require:
       - pkg: xinetd
+      - service: xinetd
   iptables:
     - insert
     - position: 1
@@ -27,20 +28,10 @@ check_mk_agent:
     - dport: 6556
     - proto: tcp
     - save: True
-  file:
-    - managed
-    - name: /etc/check_mk/mrpe.cfg
-    - source: salt://cmk/agent/mrpe.cfg.jinja
-    - template: jinja
-    - mode: 644
 
-cfg_logwatch:
-  file:
-    - managed
-    - name: /etc/check_mk/logwatch.cfg
-    - source: salt://cmk/agent/logwatch.cfg.jinja
-    - template: jinja
-    - mode: 644
-
-smartmontools:
-  pkg.installed
+include:
+  - .plugins
+  - .local
+  - .spool
+  - .mrpe
+  - .logwatch

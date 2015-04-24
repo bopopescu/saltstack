@@ -1,3 +1,6 @@
+include:
+  - ipmi
+
 add_license:
   file:
     - managed

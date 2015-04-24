@@ -1,0 +1,25 @@
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check disk of xenserver host
+'''
+
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
+
+ret = local.cmd('os:XenServer', 'cmd.run', ['lsscsi'], expr_form='grain')
+
+for minion_id in ret.keys():
+    print "<<<<%s>>>>" % minion_id
+
+    if 'not found' not in ret[minion_id]:
+        print "<<<local>>>"
+        devices = ret[minion_id].split('\n')
+        for device in devices:
+            bus, type, manu, model, id, dev = device.split()
+            print "0 dev_{0} - {1}".format(dev, device)
+    print "<<<<>>>>"

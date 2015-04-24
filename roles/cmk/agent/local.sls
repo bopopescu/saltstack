@@ -1,8 +1,10 @@
-agent_local:
+{% for local in pillar['cmk']['local'] %}
+cmk/agent/local/{{ local }}:
   file:
-    - recurse
-    - name: /usr/lib/check_mk_agent/local
-    - source: salt://cmk/agent/files/local
-    - mkdirs: True
-    - file_mode: 755
+    - managed
+    - name: /usr/lib/check_mk_agent/local/{{ local }}
+    - source: salt://cmk/agent/files/local/{{ local }}
+    - makedirs: True
+    - mode: 755
     - clean: True
+{% endfor %}
