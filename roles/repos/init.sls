@@ -1,20 +1,3 @@
-repo_citrix:
-  pkgrepo:
-    - managed
-    - name: citrix
-    - enabled: 0
-
-repos_files:
-  file:
-    - recurse
-    - name: /etc/yum.repos.d/ 
-    - source: salt://repos/files/
-    - exclude_pat: '*.repo'
-
-rpmforge_rpm:
-  pkg.installed:
-    - source: salt://repos/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-
 repo_base:
   pkgrepo:
     - managed
@@ -25,11 +8,17 @@ repo_base:
     - gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
     - enabled: 1
     - refresh_db: True
+  file:
+    - managed
+    - name: /etc/yum.repos.d/mirrors-centos
+    - source: salt://repos/files/mirrors-centos
+    - require_in:
+      - pkgrepo: base
 
 repo_updates:
   pkgrepo:
     - managed
-    - name: base
+    - name: updates
     - humanname: CentOS - Updates
     - mirrorlist: file:///etc/yum.repos.d/mirrors-centos-updates
     - gpgcheck: 0
@@ -38,6 +27,12 @@ repo_updates:
     - refresh_db: True
     - comments:
       - '#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/'
+  file:
+    - managed
+    - name: /etc/yum.repos.d/mirrors-centos-updates
+    - source: salt://repos/files/mirrors-centos-updates
+    - require_in:
+      - pkgrepo: updates
 
 repo_epel:
   pkgrepo:
@@ -53,6 +48,12 @@ repo_epel:
     - gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL
     - require_in:
       - pkg: python-hashlib
+  file:
+    - managed
+    - name: /etc/yum.repos.d/mirrors-epel
+    - source: salt://repos/files/mirrors-epel
+    - require_in:
+      - pkgrepo: epel
 
 clean_metadata:
   module.run:
