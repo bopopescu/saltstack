@@ -1,30 +1,20 @@
-#!/bin/bash
-if ! which salt-key > /dev/null 2>&1;then
-    exit
-fi
+#!/usr/bin/python
+#coding:utf-8
+import sys
+'''
+check salt-minion status by salt '*' test.ping
+'''
 
-MINIONS=$(salt-key -l acc --output=txt | sed -n '2,$p')
-UP=0
-DOWN=0
-for minion in $MINIONS
-do
-    result=$(salt $minion test.ping --output=txt)
-    if echo $result | grep -q True;then
-        let UP=$UP+1
-    else
-        let DOWN=$DOWN+1
-    fi
-done
+try:
+    import salt.client
+    local = salt.client.LocalClient()
+except:
+    sys.exit()
 
-COUNT=
-if [ $DOWN -gt 0 ];then
-    STATE=1
-    STATE_TEXT="WARN - minions down: $DOWN"
-    COUNT=$DOWN
-else
-    STATE=0
-    STATE_TEXT="OK - all minions up($UP)"
-    COUNT=$UP
-fi
+ret = local.cmd('*', 'test.ping')
 
-echo "$STATE minion.state - $STATE_TEXT"
+for minion_id in ret.keys():
+    if ret[minion_id]:
+        print "0 salt.test.ping_{0} - OK - {1}".format(minion_id, ret[minion_id])
+    else:
+         print "1 salt.test.ping_{0} - WARN - {1}".format(minion_id, ret[minion_id])
