@@ -1,5 +1,5 @@
 include:
-  - cloudstack.z2.p201.c1
+  - cloudstack.z2.p1.c1
 
 name-label: {{ grains['id'] }}
 host_label: {{ grains['id'] }}
