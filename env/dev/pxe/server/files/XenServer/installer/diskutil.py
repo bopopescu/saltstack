@@ -46,9 +46,9 @@ def wait_for_multipathd():
     xelogging.log(msg)
     raise Exception(msg)
 
-# CA-58939: create udev rule to enslave paths which come up after multipathd has started
+# CA-58939: create udev rule to ensubordinate paths which come up after multipathd has started
 #           this needs to be run before 50-udev.rules so that by the time the symlink 
-#           is created the new path is already enslaved to a master
+#           is created the new path is already ensubordinated to a main
 rules = '/etc/udev/rules.d/45-multipath.rules'
 def add_mpath_udev_rule():
     fd = open(rules,'w')
@@ -215,11 +215,11 @@ def __readOneLineFile__(filename):
 
 def getDiskDeviceVendor(dev):
 
-    # For Multipath nodes return info about 1st slave
+    # For Multipath nodes return info about 1st subordinate
     if not dev.startswith("/dev/"):
         dev = '/dev/' + dev
     if isDeviceMapperNode(dev):
-        return getDiskDeviceVendor(getMpathSlaves(dev)[0])
+        return getDiskDeviceVendor(getMpathSubordinates(dev)[0])
 
     if dev.startswith("/dev/"):
         dev = re.match("/dev/(.*)", dev).group(1)
@@ -231,11 +231,11 @@ def getDiskDeviceVendor(dev):
 
 def getDiskDeviceModel(dev):
 
-    # For Multipath nodes return info about 1st slave
+    # For Multipath nodes return info about 1st subordinate
     if not dev.startswith("/dev/"):
         dev = '/dev/' + dev
     if isDeviceMapperNode(dev):
-        return getDiskDeviceModel(getMpathSlaves(dev)[0])
+        return getDiskDeviceModel(getMpathSubordinates(dev)[0])
 
     if dev.startswith("/dev/"):
         dev = re.match("/dev/(.*)", dev).group(1)
@@ -247,11 +247,11 @@ def getDiskDeviceModel(dev):
     
 def getDiskDeviceSize(dev):
 
-    # For Multipath nodes return info about 1st slave
+    # For Multipath nodes return info about 1st subordinate
     if not dev.startswith("/dev/"):
         dev = '/dev/' + dev
     if isDeviceMapperNode(dev):
-        return getDiskDeviceSize(getMpathSlaves(dev)[0])
+        return getDiskDeviceSize(getMpathSubordinates(dev)[0])
 
     if dev.startswith("/dev/"):
         dev = re.match("/dev/(.*)", dev).group(1)
@@ -262,11 +262,11 @@ def getDiskDeviceSize(dev):
         return int(__readOneLineFile__("/sys/block/%s/size" % dev))
 
 def getDiskSerialNumber(dev):
-    # For Multipath nodes return info about 1st slave
+    # For Multipath nodes return info about 1st subordinate
     if not dev.startswith("/dev/"):
         dev = '/dev/' + dev
     if isDeviceMapperNode(dev):
-        return getDiskSerialNumber(getMpathSlaves(dev)[0])
+        return getDiskSerialNumber(getMpathSubordinates(dev)[0])
 
     rc, out = util.runCmd2(['/bin/sdparm', '-q', '-i', '-p', 'sn', dev], with_stdout = True)
     if rc == 0:
@@ -337,11 +337,11 @@ def readExtPartitionLabel(partition):
 
 def getHumanDiskName(disk):
 
-    # For Multipath nodes return info about 1st slave
+    # For Multipath nodes return info about 1st subordinate
     if not disk.startswith("/dev/"):
         disk = '/dev/' + disk
     if isDeviceMapperNode(disk):
-        return getHumanDiskName(getMpathSlaves(disk)[0])
+        return getHumanDiskName(getMpathSubordinates(disk)[0])
 
     if disk.startswith('/dev/disk/by-id/'):
         return disk[16:]
@@ -478,11 +478,11 @@ iscsi_disks = []
 # Return True if this is an iscsi device that we have previously logged into
 def is_iscsi(device):
 
-    # If this is a multipath device check whether the first slave is iSCSI
+    # If this is a multipath device check whether the first subordinate is iSCSI
     if use_mpath:
-        slaves = getMpathSlaves(device)
-        if slaves:
-            device = slaves[0]        
+        subordinates = getMpathSubordinates(device)
+        if subordinates:
+            device = subordinates[0]        
     
     major, minor = getMajMin(device)
     

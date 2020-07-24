@@ -299,15 +299,15 @@ class ExistingInstallation:
             except:
                 pass
 
-            results['master'] = None
+            results['main'] = None
             try:
                 pt = open(self.join_state_path("etc/xensource/ptoken"), 'r')
                 results['pool-token'] = pt.readline().strip()
                 pt.close()
                 pc = open(self.join_state_path("etc/xensource/pool.conf"), 'r')
                 line = pc.readline().strip()
-                if line.startswith('slave:'):
-                    results['master'] = line[6:]
+                if line.startswith('subordinate:'):
+                    results['main'] = line[6:]
                 pc.close()
             except:
                 pass

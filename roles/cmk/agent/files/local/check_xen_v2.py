@@ -3,14 +3,14 @@
 #This is an example plugin for the popular network monitoring program nagios.
 
 #Check if all the hosts in a pool are live.
-#If we log in to a slave by mistake (the master can sometimes change)
-#then redirect the request to the real master
+#If we log in to a subordinate by mistake (the main can sometimes change)
+#then redirect the request to the real main
 
 #example command line: ./check_pool.py -H ivory -p password -l root
 
 #So: return codes
 # 0 : everything is ok
-# 1 : named host is slave, but all hosts in pool are up
+# 1 : named host is subordinate, but all hosts in pool are up
 # 2 : some of the hosts in the pool are down
 # 3 : unexpected error
 
@@ -96,7 +96,7 @@ try:
 
     parser = MyOptionParser(description="Nagios plugin to check whether all hosts in a pool are live")
 
-    parser.add_option("-H", "--hostname", dest="hostname", help="name of pool master or slave")
+    parser.add_option("-H", "--hostname", dest="hostname", help="name of pool main or subordinate")
     parser.add_option("-u", "--user-name", default="root", dest="username", help="name to log in as (usually root)")
     parser.add_option("-p", "--password", dest="password", help="password")
     parser.add_option("-L", "--license", default=False, dest="licensecheck", help="check XenServer License")
@@ -111,8 +111,8 @@ try:
     parser.check_required("-p")
 
 
-    #get a session. set host_is_slave true if we need to redirect to a new master
-    host_is_slave=False
+    #get a session. set host_is_subordinate true if we need to redirect to a new main
+    host_is_subordinate=False
     try:
         session=XenAPI.Session('https://'+options.hostname)
         session.login_with_password(options.username, options.password)
@@ -120,7 +120,7 @@ try:
         if e.details[0]=='HOST_IS_SLAVE':
             session=XenAPI.Session('https://'+e.details[1])
             session.login_with_password(options.username, options.password)
-            host_is_slave=True
+            host_is_subordinate=True
         else:
             raise
     sx=session.xenapi
@@ -135,9 +135,9 @@ try:
 
     # Pull out pertinent info about the host
 
-    master_host = sx.session.get_this_host(session._session)
-    if not host_is_slave:
-      current_host = master_host
+    main_host = sx.session.get_this_host(session._session)
+    if not host_is_subordinate:
+      current_host = main_host
     else:
        for x in hosts:
          if (sx.host.get_address(x) == options.hostname):
@@ -221,7 +221,7 @@ try:
       display_status_vms="Resident VMs - Running: %i, Paused: %i" % (len(current_running_hosts), len(current_paused_hosts))
  
       
-      if not (host_is_slave) : 
+      if not (host_is_subordinate) : 
         #get total VMs counts
         vmg=sx.VM.get_all()
         #pprint(vmg);
@@ -250,10 +250,10 @@ try:
       cpu_perf_msg = "CRIT: " + cpu_perf_msg;
 
     #nagios wants a single line of output
-    if (host_is_slave):
+    if (host_is_subordinate):
       print "SLAVE XS v%s %s (MASTER at %s) [%s] %s %s | %s" % (current_license['version'], current_hostname, e.details[1], current_enabled_display, cpu_perf_msg, display_status_vms, perf_data)
     else:
-      print "MASTER XS v%s %s [%s] %s Live slaves %i dead slaves %i, %s | %s" % (current_license['version'], current_hostname, current_enabled_display, cpu_perf_msg, len(live_hosts), len(dead_hosts), display_status_vms, perf_data)
+      print "MASTER XS v%s %s [%s] %s Live subordinates %i dead subordinates %i, %s | %s" % (current_license['version'], current_hostname, current_enabled_display, cpu_perf_msg, len(live_hosts), len(dead_hosts), display_status_vms, perf_data)
 
 except Exception, e:
     print "Unexpected Exception "

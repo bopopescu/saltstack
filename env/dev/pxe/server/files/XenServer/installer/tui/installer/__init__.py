@@ -92,7 +92,7 @@ def runMainSequence(results, ram_warning, vt_warning, suppress_extra_cd_dialog):
             return True
         if 'installation-to-overwrite' in answers:
             settings = answers['installation-to-overwrite'].readSettings()
-            return (settings['master'] != None)
+            return (settings['main'] != None)
         return False
         
     def preserve_timezone(answers):
@@ -116,21 +116,21 @@ def runMainSequence(results, ram_warning, vt_warning, suppress_extra_cd_dialog):
 
         ret = False
         settings = answers['installation-to-overwrite'].readSettings()
-        if settings['master']:
+        if settings['main']:
             if not netutil.networkingUp():
                 pass
 
             try:
-                s = xmlrpclib.Server("http://"+settings['master'])
-                session = s.session.slave_login("", settings['pool-token'])["Value"]
+                s = xmlrpclib.Server("http://"+settings['main'])
+                session = s.session.subordinate_login("", settings['pool-token'])["Value"]
                 pool = s.pool.get_all(session)["Value"][0]
-                master = s.pool.get_master(session, pool)["Value"]
-                software_version = s.host.get_software_version(session, master)["Value"]
+                main = s.pool.get_main(session, pool)["Value"]
+                software_version = s.host.get_software_version(session, main)["Value"]
                 s.session.logout(session)
 
                 # compare versions
-                master_ver = product.Version.from_string(software_version['product_version'])
-                if master_ver < product.THIS_PRODUCT_VERSION:
+                main_ver = product.Version.from_string(software_version['product_version'])
+                if main_ver < product.THIS_PRODUCT_VERSION:
                     ret = True
             except:
                 pass
@@ -160,7 +160,7 @@ def runMainSequence(results, ram_warning, vt_warning, suppress_extra_cd_dialog):
              predicates=[lambda _:len(results['upgradeable-products']) > 0 or len(results['backups']) > 0]),
         Step(uis.upgrade_settings_warning,
              predicates=[upgrade_but_no_settings_predicate]),
-        Step(uis.ha_master_upgrade,
+        Step(uis.ha_main_upgrade,
              predicates=[is_reinstall_fn, ha_enabled]),
         Step(uis.remind_driver_repos,
              predicates=[is_reinstall_fn, preserve_settings]),
@@ -185,7 +185,7 @@ def runMainSequence(results, ram_warning, vt_warning, suppress_extra_cd_dialog):
              predicates=[local_media_predicate]),
         Step(uis.setup_runtime_networking, 
              predicates=[need_networking]),
-        Step(uis.master_not_upgraded,
+        Step(uis.main_not_upgraded,
              predicates=[out_of_order_pool_upgrade_fn]),
         Step(tui.repo.get_source_location,
              args=[True],

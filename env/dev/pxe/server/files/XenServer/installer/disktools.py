@@ -1121,9 +1121,9 @@ def getDeviceMapperNode(n):
     return None
 
 
-def getMpathSlaves(disk):
-    """ Return the list of slaves for an mpath device or an empty list if not mpath """    
-    slaves = []
+def getMpathSubordinates(disk):
+    """ Return the list of subordinates for an mpath device or an empty list if not mpath """    
+    subordinates = []
     major, minor = getMajMin(disk)
     rv, out = util.runCmd2(['sh','-c','ls -d1 /sys/block/*/holders/*/dev'],with_stdout=True)
     lines = out.strip().split('\n')
@@ -1133,23 +1133,23 @@ def getMpathSlaves(disk):
         __major, __minor = map(int, open(f).read().split(':'))
         if (__major, __minor) == (major, minor):
             dev = '/dev/' + dev.replace("!", "/")
-            slaves.append(dev)
-    return slaves
+            subordinates.append(dev)
+    return subordinates
 
-def getMpathMaster(dev):
-    "Returns master device or False"
+def getMpathMain(dev):
+    "Returns main device or False"
     d = getSysfsDir(dev)
     holders = os.listdir('%s/holders' % d)
     if len(holders) != 1 or (not holders[0].startswith('dm-')):
-        xelogging.log('getMpathMaster: contents of %s/holders/ is %s' % (d,str(holders)))
+        xelogging.log('getMpathMain: contents of %s/holders/ is %s' % (d,str(holders)))
     else:
         holder = holders[0]
         (major,minor) = map(int,open('/sys/block/%s/dev' % holder).read().strip().split(':'))
         for i in os.listdir('/dev/mapper'):
             dmdev = '/dev/mapper/%s' % i 
             if getMajMin(dmdev) == (major,minor):
-                xelogging.log('getMpathMaster: %s has master %s' % (dev,dmdev))
+                xelogging.log('getMpathMain: %s has main %s' % (dev,dmdev))
                 return dmdev
-        xelogging.log('getMpathMaster: could not find master %d:%d of %s in /dev/mapper/' % (major,minor,dev))
+        xelogging.log('getMpathMain: could not find main %d:%d of %s in /dev/mapper/' % (major,minor,dev))
     return None
 

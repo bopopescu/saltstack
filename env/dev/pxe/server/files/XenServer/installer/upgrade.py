@@ -256,45 +256,45 @@ class ThirdGenUpgrader(Upgrader):
                 top_pif_uid = bond_pif_uid = util.getUUID()
                 bond_uid = util.getUUID()
 
-# find slaves of this bond and write PIFs for them
-                slaves = []
+# find subordinates of this bond and write PIFs for them
+                subordinates = []
                 for file in [ f for f in os.listdir(os.path.join(mounts['root'], constants.NET_SCR_DIR))
                               if re.match('ifcfg-eth[0-9]+$', f) ]:
-                    slavecfg = util.readKeyValueFile(os.path.join(mounts['root'], constants.NET_SCR_DIR, file), strip_quotes = False)
-                    if slavecfg.has_key('MASTER') and slavecfg['MASTER'] == admin_iface:
+                    subordinatecfg = util.readKeyValueFile(os.path.join(mounts['root'], constants.NET_SCR_DIR, file), strip_quotes = False)
+                    if subordinatecfg.has_key('MASTER') and subordinatecfg['MASTER'] == admin_iface:
                             
-                        slave_uid = util.getUUID()
-                        slave_net_uid = util.getUUID()
-                        slaves.append(slave_uid)
-                        slave = NetInterface.loadFromIfcfg(os.path.join(mounts['root'], constants.NET_SCR_DIR, file))
-                        slave.writePif(slavecfg['DEVICE'], dbcache_fd, slave_uid, slave_net_uid, ('slave-of', bond_uid))
+                        subordinate_uid = util.getUUID()
+                        subordinate_net_uid = util.getUUID()
+                        subordinates.append(subordinate_uid)
+                        subordinate = NetInterface.loadFromIfcfg(os.path.join(mounts['root'], constants.NET_SCR_DIR, file))
+                        subordinate.writePif(subordinatecfg['DEVICE'], dbcache_fd, subordinate_uid, subordinate_net_uid, ('subordinate-of', bond_uid))
 
 # locate bridge that has this interface as its PIFDEV
                         bridge = None
                         for file in [ f for f in os.listdir(os.path.join(mounts['root'], constants.NET_SCR_DIR))
                                       if re.match('ifcfg-xenbr[0-9]+$', f) ]:
                             brcfg = util.readKeyValueFile(os.path.join(mounts['root'], constants.NET_SCR_DIR, file), strip_quotes = False)
-                            if brcfg.has_key('PIFDEV') and brcfg['PIFDEV'] == slavecfg['DEVICE']:
+                            if brcfg.has_key('PIFDEV') and brcfg['PIFDEV'] == subordinatecfg['DEVICE']:
                                 bridge = brcfg['DEVICE']
                                 break
                         assert bridge
                         
-                        dbcache_fd.write('\t<network ref="OpaqueRef:%s">\n' % slave_net_uid)
-                        dbcache_fd.write('\t\t<uuid>%sSlaveNetwork</uuid>\n' % slavecfg['DEVICE'])
-                        dbcache_fd.write('\t\t<PIFs>\n\t\t\t<PIF>OpaqueRef:%s</PIF>\n\t\t</PIFs>\n' % slave_uid)
+                        dbcache_fd.write('\t<network ref="OpaqueRef:%s">\n' % subordinate_net_uid)
+                        dbcache_fd.write('\t\t<uuid>%sSubordinateNetwork</uuid>\n' % subordinatecfg['DEVICE'])
+                        dbcache_fd.write('\t\t<PIFs>\n\t\t\t<PIF>OpaqueRef:%s</PIF>\n\t\t</PIFs>\n' % subordinate_uid)
                         dbcache_fd.write('\t\t<bridge>%s</bridge>\n' % bridge)
                         dbcache_fd.write('\t\t<other_config/>\n\t</network>\n')
 
                 # write bond
                 dbcache_fd.write('\t<bond ref="OpaqueRef:%s">\n' % bond_uid)
-                dbcache_fd.write('\t\t<master>OpaqueRef:%s</master>\n' % bond_pif_uid)
-                dbcache_fd.write('\t\t<uuid>InitialManagementBond</uuid>\n\t\t<slaves>\n')
-                for slave_uid in slaves:
-                    dbcache_fd.write('\t\t\t<slave>OpaqueRef:%s</slave>\n' % slave_uid)
-                dbcache_fd.write('\t\t</slaves>\n\t</bond>\n')
+                dbcache_fd.write('\t\t<main>OpaqueRef:%s</main>\n' % bond_pif_uid)
+                dbcache_fd.write('\t\t<uuid>InitialManagementBond</uuid>\n\t\t<subordinates>\n')
+                for subordinate_uid in subordinates:
+                    dbcache_fd.write('\t\t\t<subordinate>OpaqueRef:%s</subordinate>\n' % subordinate_uid)
+                dbcache_fd.write('\t\t</subordinates>\n\t</bond>\n')
 
                 # write bond PIF
-                admin_config.writePif(admin_iface, dbcache_fd, bond_pif_uid, network_uid, ('master-of', bond_uid))
+                admin_config.writePif(admin_iface, dbcache_fd, bond_pif_uid, network_uid, ('main-of', bond_uid))
             else:
                 top_pif_uid = util.getUUID()
                 # write PIF

@@ -325,8 +325,8 @@ def performInstallation(answers, ui_package, interactive):
     if 'preserve-first-partition' not in answers:
         answers['preserve-first-partition'] = False
  
-    if 'master' not in answers:
-        answers['master'] = None
+    if 'main' not in answers:
+        answers['main'] = None
     answers['branding'] = {}
  
     # perform installation:
@@ -344,7 +344,7 @@ def performInstallation(answers, ui_package, interactive):
         return new_ans
 
     new_ans['installed-repos'] = {}
-    master_required_list = []
+    main_required_list = []
     all_repositories = repository.repositoriesFromDefinition(
         answers['source-media'], answers['source-address']
         )
@@ -360,7 +360,7 @@ def performInstallation(answers, ui_package, interactive):
             answers['more-media'] = True
         else:
             all_repositories += repository.repositoriesFromDefinition(rtype, rloc)
-        master_required_list += filter(lambda r: r not in master_required_list, required_list)
+        main_required_list += filter(lambda r: r not in main_required_list, required_list)
 
     if answers['preserve-settings'] and 'backup-partnum' in new_ans:
         # mount backup and advertise mountpoint for Supplemental Packs
@@ -386,7 +386,7 @@ def performInstallation(answers, ui_package, interactive):
             for r in repositories:
                 if r.accessor().canEject():
                     r.accessor().eject()
-            still_need = filter(lambda r: str(r) not in new_ans['installed-repos'], master_required_list)
+            still_need = filter(lambda r: str(r) not in new_ans['installed-repos'], main_required_list)
             accept_media, ask_again, repos = ui_package.installer.more_media_sequence(new_ans['installed-repos'], still_need)
             repeat = accept_media
             answers['more-media'] = ask_again
@@ -638,7 +638,7 @@ def __mkinitrd(mounts, partition, kernel_version):
     args = ['--theme=/usr/share/splash']
     if isDeviceMapperNode(partition):
         # [multipath-root]: /etc/fstab specifies the rootdev by LABEL so we need this to make sure mkinitrd
-        # picks up the master device and not the slave 
+        # picks up the main device and not the subordinate 
         args.append('--rootdev='+ partition)
     else:
         args.append('--without-multipath')

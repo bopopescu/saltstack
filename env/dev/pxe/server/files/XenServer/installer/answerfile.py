@@ -149,10 +149,10 @@ class Answerfile:
             disk = normalize_disk(pd_text)
 
         # If we're using multipath and the answerfile names a multipath
-        # slave, then we want to install to the master!
-        master = disktools.getMpathMaster(disk)
-        if master:
-            disk = master
+        # subordinate, then we want to install to the main!
+        main = disktools.getMpathMain(disk)
+        if main:
+            disk = main
         results['primary-disk'] = disk
 
         pd_has_guest_storage = pd[0].getAttribute("gueststorage").lower() in ["", "yes", "true"]
@@ -165,16 +165,16 @@ class Answerfile:
             results['guest-disks'].append(results['primary-disk'])
         for disknode in self.nodelist.getElementsByTagName('guest-disk'):
             disk = normalize_disk(getText(disknode.childNodes))
-            # Replace references to multipath slaves with references to their multipath masters
-            master = disktools.getMpathMaster(disk)
-            if master:
+            # Replace references to multipath subordinates with references to their multipath mains
+            main = disktools.getMpathMain(disk)
+            if main:
                 # CA-38329: disallow device mapper nodes (except primary disk) as these won't exist
                 # at XenServer boot and therefore cannot be added as physical volumes to Local SR.
                 # Also, since the DM nodes are multipathed SANs it doesn't make sense to include them
                 # in the "Local" SR.
-                if master != results['primary-disk']:
+                if main != results['primary-disk']:
                     raise AnswerfileError, "Answerfile specifies non-local disk %s to add to Local SR" % disk
-                disk = master
+                disk = main
             results['guest-disks'].append(disk)
 
         results.update(self.parseSource())
@@ -227,10 +227,10 @@ class Answerfile:
             else:
                 disk = normalize_disk(node_text)
 
-            # If answerfile names a multipath replace with the master!
-            master = disktools.getMpathMaster(disk)
-            if master:
-                disk = master
+            # If answerfile names a multipath replace with the main!
+            main = disktools.getMpathMain(disk)
+            if main:
+                disk = main
             results['primary-disk'] = disk
 
         results.update(self.parseSource())
@@ -359,10 +359,10 @@ class Answerfile:
         else:
             disk = normalize_disk(ei)
 
-        # If answerfile names a multipath replace with the master!
-        master = disktools.getMpathMaster(disk)
-        if master:
-            disk = master
+        # If answerfile names a multipath replace with the main!
+        main = disktools.getMpathMain(disk)
+        if main:
+            disk = main
 
         results['primary-disk'] = disk
 

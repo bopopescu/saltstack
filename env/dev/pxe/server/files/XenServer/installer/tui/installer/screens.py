@@ -283,13 +283,13 @@ def get_installation_type(answers):
 
     return RIGHT_FORWARDS
 
-def ha_master_upgrade(answers):
+def ha_main_upgrade(answers):
     button = ButtonChoiceWindow(
         tui.screen,
         "High Availability Enabled",
         """High Availability must be disabled before upgrade.
 
-Please reboot this host, disable High Availability on the pool, check which server is the pool master and then restart the upgrade procedure.""",
+Please reboot this host, disable High Availability on the pool, check which server is the pool main and then restart the upgrade procedure.""",
         ['Cancel', 'Back'],
         width = 60, help = 'hawarn'
         )
@@ -297,13 +297,13 @@ Please reboot this host, disable High Availability on the pool, check which serv
     if button == 'back': return LEFT_BACKWARDS
     return EXIT
 
-def master_not_upgraded(answers):
+def main_not_upgraded(answers):
     button = ButtonChoiceWindow(
         tui.screen,
-        "Pool Master Version",
-        "The master host of this pool must be upgraded before this slave.",
+        "Pool Main Version",
+        "The main host of this pool must be upgraded before this subordinate.",
         ['Cancel', 'Back'],
-        width = 60, help = 'masterwarn'
+        width = 60, help = 'mainwarn'
         )
 
     if button == 'back': return LEFT_BACKWARDS

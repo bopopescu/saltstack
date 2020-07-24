@@ -76,8 +76,8 @@ def sh_sys():
 
 def put_file():
     with cd('/tmp'):
-        put('id_rsa.pub.master', 'id_rsa.pub.master')
-        run('cat id_rsa.pub.master >> /root/.ssh/authorized_keys')
+        put('id_rsa.pub.main', 'id_rsa.pub.main')
+        run('cat id_rsa.pub.main >> /root/.ssh/authorized_keys')
 
 def run_task(name, args):
     execute(name, args)

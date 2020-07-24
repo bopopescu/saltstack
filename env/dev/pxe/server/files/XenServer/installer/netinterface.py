@@ -115,13 +115,13 @@ class NetInterface:
         f.write('\t\t<management>True</management>\n')
         f.write('\t\t<uuid>%sPif</uuid>\n' % iface)
 
-        f.write('\t\t<bond_slave_of>OpaqueRef:%s</bond_slave_of>\n' % ((bonding and bonding[0] == 'slave-of') and bonding[1] or 'NULL'))
-        if (bonding and bonding[0] == 'master-of'):
-            f.write('\t\t<bond_master_of>\n\t\t\t<slave>OpaqueRef:%s</slave>\n\t\t</bond_master_of>\n' % bonding[1])
+        f.write('\t\t<bond_subordinate_of>OpaqueRef:%s</bond_subordinate_of>\n' % ((bonding and bonding[0] == 'subordinate-of') and bonding[1] or 'NULL'))
+        if (bonding and bonding[0] == 'main-of'):
+            f.write('\t\t<bond_main_of>\n\t\t\t<subordinate>OpaqueRef:%s</subordinate>\n\t\t</bond_main_of>\n' % bonding[1])
         else:
-            f.write('\t\t<bond_master_of/>\n')
+            f.write('\t\t<bond_main_of/>\n')
 
-        f.write('\t\t<VLAN_slave_of/>\n\t\t<VLAN_master_of>OpaqueRef:NULL</VLAN_master_of>\n\t\t<VLAN>-1</VLAN>\n')
+        f.write('\t\t<VLAN_subordinate_of/>\n\t\t<VLAN_main_of>OpaqueRef:NULL</VLAN_main_of>\n\t\t<VLAN>-1</VLAN>\n')
         f.write('\t\t<tunnel_access_PIF_of/>\n')
         f.write('\t\t<tunnel_transport_PIF_of/>\n')
         f.write('\t\t<device>%s</device>\n' % iface)

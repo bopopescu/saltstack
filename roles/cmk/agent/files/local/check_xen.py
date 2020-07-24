@@ -627,7 +627,7 @@ def main():
 
     connection_parser = argparse.ArgumentParser(add_help=False)
     connection_parser.add_argument('-H', '--host', dest='host', required=True,
-                        help='XenServer host/pool master.')
+                        help='XenServer host/pool main.')
     connection_parser.add_argument('-U', '--user', dest='user', required=True,
                         help='Authorized user on the XenServer.')
     connection_parser.add_argument('-P', '--password', dest='password', required=True,
